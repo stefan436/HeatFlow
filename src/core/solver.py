@@ -1,8 +1,7 @@
-# src/solver.py
+# src/core/solver.py
 
 import numpy as np
 from scipy.integrate import solve_ivp
-import matplotlib.pyplot as plt
 
 from .config_system import *
 
@@ -10,9 +9,11 @@ def _heat_equation(t, u0_flat):
     u = u0_flat.reshape(N,M)
     
     du_dt = np.zeros_like(u)
-    du_dt[0, :] = 0        # initial conditions: ends of the rod have temp 0
+
+    # boundary conditions
+    du_dt[0, :] = 0        
+    du_dt[-1, :] = 0       
     du_dt[:, 0] = 0
-    du_dt[-1, :] = 0       # initial conditions: ends of the rod have temp 0
     du_dt[:, -1] = 0
     
     # vector slicing: if [1:-1] is taken from a numpy array we get the original array without the first and the last entry

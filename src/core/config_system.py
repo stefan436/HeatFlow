@@ -1,4 +1,4 @@
-# src/settings.py
+# src/core/config_system.py
 
 import numpy as np
 
@@ -9,11 +9,23 @@ dx = 0.1
 dy = 0.1
 alpha = 1
 
-t_span = (1, 10)  # time span over which is integrated
+# time span over which is integrated
+t_span = (1, 10)  
 
-# example input
+# boundary conditions
+bc_top = 0.0      # Oben
+bc_bottom = 0.0   # Unten
+bc_left = 0.0     # Links
+bc_right = 0.0    # Rechts
+
+# initial conditions
 u0 = np.zeros(shape=(N,M))
 u0[40:60, 40:60] = 100     # middle of the rod is at 100 °C
+
+u0[0, :] = bc_top
+u0[-1, :] = bc_bottom
+u0[:, 0] = bc_left
+u0[:, -1] = bc_right
 
 vmin = 0
 vmax = 100
