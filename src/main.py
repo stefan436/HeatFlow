@@ -2,9 +2,9 @@
 
 import matplotlib.pyplot as plt
 
-from src.solver import HeatEquationSolver
-from src.config_system import u0
-from src.visualisation import *
+from code.solver import HeatEquationSolver
+from code.config_system import u0
+from code.visualisation import *
 
 if __name__ == "__main__":
     sol_tensor = HeatEquationSolver(u0)
