@@ -13,10 +13,10 @@ alpha = 1
 t_span = (1, 10)  
 
 # boundary conditions
-bc_top = 0.0      # Oben
-bc_bottom = 0.0   # Unten
-bc_left = 0.0     # Links
-bc_right = 0.0    # Rechts
+bc_top = 0.0     
+bc_bottom = 0.0   
+bc_left = 0.0   
+bc_right = 0.0    
 
 # initial conditions
 u0 = np.zeros(shape=(N,M))
