@@ -6,7 +6,7 @@ N = 100
 M = 100
 
 dx = 0.1
-dy = 0.2
+dy = 0.1
 alpha = 1
 
 t_span = (1, 10)  # time span over which is integrated
