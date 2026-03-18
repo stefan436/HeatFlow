@@ -2,11 +2,8 @@
 
 import numpy as np
 from scipy.integrate import solve_ivp
-from tqdm import tqdm
 
-from .config_system import *
-
-def _heat_equation(t, u0_flat):
+def _heat_equation(t, u0_flat, N, M, alpha, Q, dx, dy):
     k = u0_flat.shape[1] if u0_flat.ndim > 1 else 1
     if k == 1:
         u = u0_flat.reshape(N, M)
@@ -43,14 +40,15 @@ def _heat_equation(t, u0_flat):
     
 
 
-def HeatEquationSolver(u0):
+def HeatEquationSolver(alpha, Q, u0, t_span, N, M, dx, dy):
     # --- Solve heat equation --- 
     u0_flat = u0.flatten()
     print("Start integration...")
     sol = solve_ivp(_heat_equation,
                     t_span=t_span,
                     y0=u0_flat,
-                    method="RK45",
+                    method="LSODA",
+                    args=(N, M, alpha, Q, dx, dy),
                     vectorized=True)  # Radau solver better for stiff problems 
     print("Integration completed.")                            # end progress bar
     num_of_timesteps = sol.y.shape[1]           # number of time steps for which the equation is solved

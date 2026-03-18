@@ -1,43 +1,28 @@
 # src/core/config_system.py
 
-from turtle import shape
-
 import numpy as np
 
-vmin = 0
-vmax = 100
+def initialise_matrices(N, M, components, heat_sources, initial_heat_spots, boundary_conditions):
+    # Initialise alpha matrix
+    alpha = np.zeros(shape=(N,M))
+    alpha[:, :] = 2.3e-5                # "substrate" made of iron
+    for component in components:
+        alpha[component.bottom_left[1] : component.top_right[1], component.bottom_left[0] : component.top_right[0]] = component.alpha
 
-# 10cm plate
-N = 100
-M = 100
+    # Initialise heat source matrix
+    Q = np.zeros_like(alpha)
+    for q_source in heat_sources:
+        Q[q_source.bottom_left[1] : q_source.top_right[1], q_source.bottom_left[0] : q_source.top_right[0]] = q_source.temp
 
-# 1mm distance
-dx = 0.001
-dy = 0.001
+    # Initialise initial heat map
+    u0 = np.zeros_like(alpha)
+    u0[:, :] = 23
+    for heat_spot in initial_heat_spots:
+        u0[heat_spot.bottom_left[1] : heat_spot.top_right[1], heat_spot.bottom_left[0] : heat_spot.top_right[0]] = heat_spot.temp
 
-# alpha for Al
-alpha_val = 9.7e-5
-alpha = np.zeros(shape=(N,M))
-alpha[:, :] = alpha_val
-
-# time span over which is integrated (seconds)
-t_span = (1, 60)  
-
-# boundary conditions
-bc_top = 0.0     
-bc_bottom = 0.0   
-bc_left = 0.0   
-bc_right = 0.0    
-
-# initial conditions
-u0 = np.zeros_like(alpha)
-u0[40:60, 40:60] = 100     # middle of the rod is at 100 °C
-
-u0[0, :] = bc_top
-u0[-1, :] = bc_bottom
-u0[:, 0] = bc_left
-u0[:, -1] = bc_right
-
-# heat source 
-Q = np.zeros_like(alpha)
-Q[40:60, 40:60] = 100 
+    u0[0, :] = boundary_conditions.get("top")
+    u0[-1, :] = boundary_conditions.get("bottom")
+    u0[:, 0] = boundary_conditions.get("left")
+    u0[:, -1] = boundary_conditions.get("right")
+    
+    return alpha, Q, u0

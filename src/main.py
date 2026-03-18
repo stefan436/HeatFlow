@@ -3,18 +3,82 @@
 import matplotlib.pyplot as plt
 
 from core.solver import HeatEquationSolver
-from core.config_system import u0
+from core.config_system import initialise_matrices
 from core.visualisation import *
+from core.material import display_available_materials
+from core.component_shapes import *
+
+
+# ============================
+# User Input
+# ============================
+
+# values are for the colorbars
+temp_min = 0
+temp_max = 100
+
+# size of the plate in mm (scale is determined by dx and dy)
+# origin is bottom left
+N = 100
+M = 100
+
+# 1mm distance (defines scale)
+dx = 0.001
+dy = 0.001
+
+# time span over which is integrated (seconds)
+t_span = (1, 60)  
+
+# Components which are placed on iron substrate
+components = [
+    Square(x_center=50, y_center=50, side_length=10, material="Aluminium")
+]
+
+# permanent heat source
+heat_sources = [
+    Square(x_center=50, y_center=50, side_length=3, temp=100)
+]
+
+# Initial heat map (rest is at room temp)
+initial_heat_spots = [
+    Square(x_center=50, y_center=50, side_length=5, temp=100)
+]
+
+# permanent boundary conditions (choose room temp)
+boundary_condition = {"bottom": 23, 
+                      "right": 23,
+                      "top": 23,
+                      "left": 23}
+
+
+# ============================
+# user Input End
+# ============================
+
+
+
 
 if __name__ == "__main__":
-    sol_tensor = HeatEquationSolver(u0)
+    display_available_materials()    
+    
+    alpha, Q, u0 = initialise_matrices(N, M,
+                                       components,
+                                       heat_sources,
+                                       initial_heat_spots,
+                                       boundary_condition)
+    
+    print("Setup Dashboard")
+    plot_setup_dashboard(alpha, Q, u0)
+    show_until_enter()
+    
+    sol_tensor = HeatEquationSolver(alpha, Q, u0, t_span, N, M, dx, dy)
     
     print("Initial State")
-    initial_state(sol_tensor)
+    initial_state(sol_tensor, temp_min, temp_max, alpha=alpha) 
     show_until_enter()
         
     print("Final State")
-    final_state(sol_tensor)
+    final_state(sol_tensor, temp_min, temp_max, alpha=alpha)
     show_until_enter()
     
     # print("Slider Animation")
@@ -22,5 +86,5 @@ if __name__ == "__main__":
     # plt.show()
     
     print("Animation")
-    animate_heat(sol_tensor)
+    ani = animate_heat(sol_tensor, temp_min, temp_max, alpha=alpha)
     plt.show()
