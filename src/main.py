@@ -17,9 +17,9 @@ if __name__ == "__main__":
     final_state(sol_tensor)
     show_until_enter()
     
-    print("Slider Animation")
-    interactive_heat_map(sol_tensor)
-    plt.show()
+    # print("Slider Animation")
+    # interactive_heat_map(sol_tensor)
+    # plt.show()
     
     print("Animation")
     animate_heat(sol_tensor)

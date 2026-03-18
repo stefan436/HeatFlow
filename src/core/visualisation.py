@@ -54,7 +54,6 @@ def animate_heat(sol_tensor):
     
     def update(frame):
         im.set_data(sol_tensor[frame, :, :])
-        ax.set_title(f"Step: {frame}")
         return [im]
 
     ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=True)
