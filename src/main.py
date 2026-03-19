@@ -14,8 +14,8 @@ from core.component_shapes import *
 # ============================
 
 # values are for the colorbars
-temp_min = 0
-temp_max = 100
+temp_min = 20
+temp_max = 50
 
 # size of the plate in mm (scale is determined by dx and dy)
 # origin is bottom left
@@ -27,21 +27,23 @@ dx = 0.001
 dy = 0.001
 
 # time span over which is integrated (seconds)
-t_span = (1, 60)  
+t_span = (1, 180)  
 
 # Components which are placed on iron substrate
 components = [
-    Square(x_center=50, y_center=50, side_length=10, material="Aluminium")
+    Square(x_center=25, y_center=25, side_length=10, material="Copper at 25 °C"),
+    Square(x_center=75, y_center=75, side_length=10, material="Copper at 25 °C")
 ]
 
 # permanent heating power density (in W/m^2)
 heat_sources = [
-    Square(x_center=50, y_center=50, side_length=3, material="Aluminium", power=100)
+    Square(x_center=25, y_center=25, side_length=9, material="Copper at 25 °C", power=1000000),
+    Square(x_center=75, y_center=75, side_length=9, material="Copper at 25 °C", power=1000000)
 ]
 
-# Initial heat map (rest is at room temp)
+# Initial heat map (rest is at room temp/23)
 initial_heat_spots = [
-    Square(x_center=50, y_center=50, side_length=5, temp=100)
+    Square(x_center=50, y_center=50, side_length=5, temp=23)
 ]
 
 # permanent boundary conditions (choose room temp; infinite cooling power)
