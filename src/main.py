@@ -34,9 +34,9 @@ components = [
     Square(x_center=50, y_center=50, side_length=10, material="Aluminium")
 ]
 
-# permanent heat source
+# permanent heating power density (in W/m^2)
 heat_sources = [
-    Square(x_center=50, y_center=50, side_length=3, temp=100)
+    Square(x_center=50, y_center=50, side_length=3, material="Aluminium", power=100)
 ]
 
 # Initial heat map (rest is at room temp)
@@ -44,7 +44,7 @@ initial_heat_spots = [
     Square(x_center=50, y_center=50, side_length=5, temp=100)
 ]
 
-# permanent boundary conditions (choose room temp)
+# permanent boundary conditions (choose room temp; infinite cooling power)
 boundary_condition = {"bottom": 23, 
                       "right": 23,
                       "top": 23,
@@ -61,17 +61,17 @@ boundary_condition = {"bottom": 23,
 if __name__ == "__main__":
     display_available_materials()    
     
-    alpha, Q, u0 = initialise_matrices(N, M,
+    alpha, temp_rate_mat, u0 = initialise_matrices(N, M,
                                        components,
                                        heat_sources,
                                        initial_heat_spots,
                                        boundary_condition)
     
     print("Setup Dashboard")
-    plot_setup_dashboard(alpha, Q, u0)
+    plot_setup_dashboard(alpha, temp_rate_mat, u0)
     show_until_enter()
     
-    sol_tensor = HeatEquationSolver(alpha, Q, u0, t_span, N, M, dx, dy)
+    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy)
     
     print("Initial State")
     initial_state(sol_tensor, temp_min, temp_max, alpha=alpha) 

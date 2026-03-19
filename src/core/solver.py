@@ -3,7 +3,7 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 
-def _heat_equation(t, u0_flat, N, M, alpha, Q, dx, dy):
+def _heat_equation(t, u0_flat, N, M, alpha, temp_rate_mat, dx, dy):
     k = u0_flat.shape[1] if u0_flat.ndim > 1 else 1
     if k == 1:
         u = u0_flat.reshape(N, M)
@@ -22,25 +22,25 @@ def _heat_equation(t, u0_flat, N, M, alpha, Q, dx, dy):
     du_dt[:, -1, ...] = 0
 
     a = alpha[1:-1, 1:-1]
-    q = Q[1:-1, 1:-1]
+    temp_rate = temp_rate_mat[1:-1, 1:-1]
 
     if is_vectorized:
         a = alpha[1:-1, 1:-1, np.newaxis]
-        q = Q[1:-1, 1:-1, np.newaxis]
+        temp_rate = temp_rate_mat[1:-1, 1:-1, np.newaxis]
     
     # vector slicing: if [1:-1] is taken from a numpy array we get the original array without the first and the last entry
     # the next line calculates the whole array at once (this is vectorisation)
-    # numpy broadcasting takes care of the dimensionality in u; only a new dimension/axis has to be added to a and q
+    # numpy broadcasting takes care of the dimensionality in u; only a new dimension/axis has to be added to a and temp_rate_mat
     
     du_dt[1:-1, 1:-1] = a * ((u[2:, 1:-1] - 2*u[1:-1, 1:-1] + u[0:-2, 1:-1]) / dx**2 +
-                             (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, 0:-2]) / dy**2) + q
+                             (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, 0:-2]) / dy**2) + temp_rate
     
     return du_dt.reshape(u0_flat.shape)    # returns the vector of the derivatives in the same shape as the input u0_flat
                                 # solve_ivp only understands 1D (2D if vectorized) inputs, thus, flatten/reshape
     
 
 
-def HeatEquationSolver(alpha, Q, u0, t_span, N, M, dx, dy):
+def HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy):
     # --- Solve heat equation --- 
     u0_flat = u0.flatten()
     print("Start integration...")
@@ -48,7 +48,7 @@ def HeatEquationSolver(alpha, Q, u0, t_span, N, M, dx, dy):
                     t_span=t_span,
                     y0=u0_flat,
                     method="LSODA",
-                    args=(N, M, alpha, Q, dx, dy),
+                    args=(N, M, alpha, temp_rate_mat, dx, dy),
                     vectorized=True)  # Radau solver better for stiff problems 
     print("Integration completed.")                            # end progress bar
     num_of_timesteps = sol.y.shape[1]           # number of time steps for which the equation is solved

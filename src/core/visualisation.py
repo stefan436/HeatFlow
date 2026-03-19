@@ -18,8 +18,8 @@ def show_until_enter():
     plt.show()
 
 
-def plot_setup_dashboard(alpha, Q, u0):
-    """Visualisiert die Eingangsmatrizen: Materialien, Wärmequellen, Starttemperatur."""
+def plot_setup_dashboard(alpha, temp_rate_mat, u0):
+    """Visualisiert die Eingangsmatrizen: Materialien, Wärmeuellen, Starttemperatur."""
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
     fig.suptitle("Simulations-Setup Übersicht", fontsize=16)
 
@@ -28,9 +28,9 @@ def plot_setup_dashboard(alpha, Q, u0):
     axes[0].set_title("Materialverteilung/Diffusivität (Alpha)")
     fig.colorbar(im0, ax=axes[0], label='Diffusivität (m²/s)')
 
-    # 2. Heat source (Q)
-    im1 = axes[1].imshow(Q, cmap='magma', origin='lower')
-    axes[1].set_title("Perm. Wärmequellen (Q)")
+    # 2. Heat source (temp_rate_mat)
+    im1 = axes[1].imshow(temp_rate_mat, cmap='magma', origin='lower')
+    axes[1].set_title("Perm. Wärmeuellen (temp_rate_mat)")
     fig.colorbar(im1, ax=axes[1], label='Temperatur (°C)')
 
     # 3. initial heat map (u0)
@@ -104,5 +104,5 @@ def animate_heat(sol_tensor, vmin, vmax, alpha=None):
         return [im, time_text]
 
     # The 'ani' reference must be returned; otherwise, the garbage collector will delete the animation
-    ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=True)
+    ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=False)   # blit=False keeps the alpha contour for every frame
     return ani
