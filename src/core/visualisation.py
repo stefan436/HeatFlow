@@ -57,7 +57,7 @@ def initial_state(final_tensor, vmin, vmax, alpha=None):
     
     # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
+        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
 
 
 def final_state(final_tensor, vmin, vmax, alpha=None):
@@ -68,7 +68,7 @@ def final_state(final_tensor, vmin, vmax, alpha=None):
     
     # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
+        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
 
 
 def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
@@ -78,8 +78,9 @@ def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
     im = ax.imshow(sol_tensor[0, :, :], cmap='hot', origin='lower', vmin=vmin, vmax=vmax)
     fig.colorbar(im, label='Temperatur (°C)')
         
+    # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
+        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
 
     ax_time = plt.axes([0.2, 0.1, 0.65, 0.03])
     slider = Slider(ax_time, 'Step', 0, len(sol_tensor)-1, valinit=0, valfmt='%d')
@@ -101,7 +102,7 @@ def animate_heat(sol_tensor, vmin, vmax, alpha=None):
 
     # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
+        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
 
     # frame count
     time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, color='white', fontsize=12, fontweight='bold')
