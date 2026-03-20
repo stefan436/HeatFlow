@@ -77,7 +77,7 @@ if __name__ == "__main__":
     plot_setup_dashboard(alpha, temp_rate_mat, u0)
     show_until_enter()
     
-    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface=True)
+    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface)
     temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
     
     print("Initial State")
