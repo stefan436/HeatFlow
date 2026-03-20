@@ -21,32 +21,30 @@ def show_until_enter():
 
 def plot_setup_dashboard(alpha, temp_rate_mat, u0):
     """Visualisiert die Eingangsmatrizen: Materialien, Wärmequellen, Starttemperatur."""
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-    fig.suptitle("Simulations-Setup Übersicht", fontsize=16)
+    # 1. Korrektur: Höhe auf 5 erhöhen und constrained_layout=True aktivieren
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5), constrained_layout=True)
+    fig.suptitle("Simulations-Setup Übersicht", fontsize=16, fontweight='bold')
 
-    # Lese direkt die eindeutigen Werte aus, statt sie zu zählen
     unique_alphas = np.unique(alpha)
 
-    # 1. Material (Alpha)
+    # 2. Korrektur: Titel leicht gekürzt für bessere Lesbarkeit
     im0 = axes[0].imshow(alpha, cmap='viridis', origin='lower')
-    axes[0].set_title("Materialverteilung/Diffusivität (Alpha)")
-    # Übergib das Array 'unique_alphas' direkt an levels
+    axes[0].set_title("Materialverteilung (Alpha)")
     axes[0].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    fig.colorbar(im0, ax=axes[0], label='Diffusivität (m²/s)')
+    # 3. Korrektur: shrink (macht die Bar kürzer) und pad (schiebt sie vom Plot weg)
+    fig.colorbar(im0, ax=axes[0], label='Diffusivität (m²/s)', shrink=0.8, pad=0.05)
 
-    # 2. Heat source (temp_rate_mat)
     im1 = axes[1].imshow(temp_rate_mat, cmap='magma', origin='lower')
-    axes[1].set_title("Perm. Wärmeuellen (temp_rate_mat)")
+    axes[1].set_title("Perm. Wärmequellen")
     axes[1].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    fig.colorbar(im1, ax=axes[1], label='Temperatur Zunahme (°C/s)')
+    fig.colorbar(im1, ax=axes[1], label='Temperatur Zunahme (°C/s)', shrink=0.8, pad=0.05)
 
-    # 3. initial heat map (u0)
     im2 = axes[2].imshow(u0, cmap='hot', origin='lower')
-    axes[2].set_title("Initiales Temperaturfeld (u0)")
+    axes[2].set_title("Initiales Temperaturfeld")
     axes[2].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    fig.colorbar(im2, ax=axes[2], label='Temperatur (°C)')
+    fig.colorbar(im2, ax=axes[2], label='Temperatur (°C)', shrink=0.8, pad=0.05)
 
-    plt.tight_layout()
+    return fig
     
 
 def initial_state(final_tensor, vmin, vmax, alpha=None):
@@ -58,6 +56,7 @@ def initial_state(final_tensor, vmin, vmax, alpha=None):
     # Overlay to show different materials
     if alpha is not None:
         ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
+    return fig
 
 
 def final_state(final_tensor, vmin, vmax, alpha=None):
@@ -69,6 +68,7 @@ def final_state(final_tensor, vmin, vmax, alpha=None):
     # Overlay to show different materials
     if alpha is not None:
         ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
+    return fig
 
 
 def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
@@ -91,7 +91,7 @@ def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
         fig.canvas.draw_idle()
 
     slider.on_changed(update)
-    plt.show()
+    return fig, slider
 
 
 def animate_heat(sol_tensor, vmin, vmax, alpha=None):
@@ -114,4 +114,4 @@ def animate_heat(sol_tensor, vmin, vmax, alpha=None):
 
     # The 'ani' reference must be returned; otherwise, the garbage collector will delete the animation
     ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=False)   # blit=False keeps the alpha contour for every frame
-    return ani
+    return fig, ani
