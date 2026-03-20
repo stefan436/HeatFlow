@@ -29,6 +29,9 @@ dy = 0.001
 # time span over which is integrated (seconds)
 t_span = (1, 60)
 
+# Choose substrate Material
+substrate_material = "PC (polycarbonate) at 25 °C"
+
 
 # Components which are placed on iron substrate
 # First component in list is "lowest" layer, last component is "top" layer and replaces "lower" layers (if they overlap). 
@@ -69,10 +72,11 @@ if __name__ == "__main__":
     display_available_materials()    
     
     alpha, temp_rate_mat, u0 = initialise_matrices(N, M,
-                                       components,
-                                       heat_sources,
-                                       initial_heat_spots,
-                                       boundary_condition)
+                                                   substrate_material,
+                                                   components,
+                                                   heat_sources,
+                                                   initial_heat_spots,
+                                                   boundary_condition)
     
     print("Setup Dashboard")
     plot_setup_dashboard(alpha, temp_rate_mat, u0)

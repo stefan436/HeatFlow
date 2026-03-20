@@ -3,11 +3,14 @@
 import numpy as np
 
 from .component_shapes import Circle
+from .material import fetch_material_properties
 
-def initialise_matrices(N, M, components, heat_sources, initial_heat_spots, boundary_conditions):
+def initialise_matrices(N, M, substrate_material, components, heat_sources, initial_heat_spots, boundary_conditions):
+    substr_alpha, _ , _ = fetch_material_properties(substrate_material)
+    
     # Initialise alpha_mat matrix
     alpha_mat = np.zeros(shape=(N,M))
-    alpha_mat[:, :] = 2.3e-5                # "substrate" made of iron
+    alpha_mat[:, :] = substr_alpha
     for component in components:
         
         if isinstance(component, Circle):
