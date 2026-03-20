@@ -3,10 +3,10 @@
 import matplotlib.pyplot as plt
 
 from core.solver import HeatEquationSolver
-from core.config_system import initialise_matrices
 from core.visualisation import *
 from core.material import display_available_materials
 from core.component_shapes import *
+from core.initialise_shapes import initialise_matrices
 
 
 # ============================
@@ -19,29 +19,34 @@ temp_max = 50
 
 # size of the plate in mm (scale is determined by dx and dy)
 # origin is bottom left
-N = 100
-M = 100
+M = 100         # x direction
+N = 100         # y direction
 
 # 1mm distance (defines scale)
 dx = 0.001
 dy = 0.001
 
 # time span over which is integrated (seconds)
-t_span = (1, 180)  
+t_span = (1, 60)
+
 
 # Components which are placed on iron substrate
+# First component in list is "lowest" layer, last component is "top" layer and replaces "lower" layers (if they overlap). 
 components = [
-    Square(x_center=25, y_center=25, side_length=10, material="Copper at 25 °C"),
-    Square(x_center=75, y_center=75, side_length=10, material="Copper at 25 °C")
+    Rectangle(x_center=50, y_center=50, x_length=4, y_length=50, material="Copper at 25 °C"),
+    Square(x_center=50, y_center=25, side_length=10, material="Silicon"),
+    Square(x_center=50, y_center=75, side_length=10, material="Silicon")
 ]
 
 # permanent heating power density (in W/m^2)
+# Same hierarchy as with components 
 heat_sources = [
-    Square(x_center=25, y_center=25, side_length=9, material="Copper at 25 °C", power=1000000),
-    Square(x_center=75, y_center=75, side_length=9, material="Copper at 25 °C", power=1000000)
+    Circle(N, M, x_center=50, y_center=25, radius=5, material="Silicon", power=1000000),
+    Circle(N, M, x_center=50, y_center=75, radius=5, material="Silicon", power=1000000)
 ]
 
 # Initial heat map (rest is at room temp/23)
+# Same hierarchy as with components 
 initial_heat_spots = [
     Square(x_center=50, y_center=50, side_length=5, temp=23)
 ]
