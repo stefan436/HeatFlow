@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QMessageBox, QGraphicsView, QGraphicsScene, QCheckBox,
                              QListWidgetItem, QDialog, QDialogButtonBox, QStatusBar, QProgressBar)
 from PyQt6.QtCore import Qt, QRectF, QThread, pyqtSignal
-from PyQt6.QtGui import QBrush, QPen, QColor
+from PyQt6.QtGui import QBrush, QPen, QColor, QPalette, QFont
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from PyQt6.QtWidgets import QTabWidget
@@ -17,6 +17,127 @@ from core.visualisation import plot_setup_dashboard, initial_state, final_state,
 from core.material import material_db
 from core.component_shapes import Rectangle, Square, Circle
 from core.initialise_shapes import initialise_matrices
+
+# Style sheet
+APP_STYLE = """
+/* GLOBAL APP STYLING - Modern Classic Dark (Subtle Edition) */
+QMainWindow {
+    background-color: #1e1e1e;
+}
+
+/* WICHTIGE ÄNDERUNG: Entferne das '#HeaderBox', damit alle GroupBoxes das Design erhalten */
+QGroupBox {
+    background-color: #252526;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-weight: bold;
+    color: #cccccc;
+}
+
+QLineEdit {
+    background-color: #333337;
+    border: 1px solid #454545;
+    border-radius: 2px;
+    color: #f1f1f1;
+    padding: 4px;
+    selection-background-color: #4a6572;
+}
+QLineEdit:read-only {
+    background-color: #2d2d30;
+    color: #a0a0a0;
+    font-style: italic;
+}
+
+/* BUTTONS */
+QPushButton {
+    background-color: #3e3e42;
+    border: 1px solid #555555;
+    color: #f1f1f1;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-weight: normal;
+}
+QPushButton:hover {
+    background-color: #505055;
+    border-color: #4a6572;
+}
+QPushButton:pressed {
+    background-color: #4a6572;
+    color: white;
+}
+
+/* RIBBON TAB WIDGET */
+QTabWidget::pane {
+    border: 1px solid #3e3e42;
+    background-color: #252526;
+    top: -1px; 
+}
+QTabWidget::tab-bar {
+    left: 5px; 
+}
+QTabBar::tab {
+    background: #1e1e1e;
+    color: #999999;
+    padding: 8px 20px;
+    border: 1px solid #3e3e42;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 2px;
+    min-width: 80px;
+}
+QTabBar::tab:selected {
+    background: #252526;
+    color: #ffffff;
+    border-bottom: 1px solid #252526; 
+    border-top: 2px solid #4a6572;
+    font-weight: bold;
+}
+QTabBar::tab:hover {
+    background: #2d2d30;
+    color: #eeeeee;
+}
+
+/* STATUS BAR */
+QStatusBar {
+    background-color: #252526;
+    color: #cccccc;
+    border-top: 1px solid #3e3e42;
+}
+QStatusBar QLabel {
+    color: #cccccc;
+    padding: 0 5px;
+}
+
+/* DIALOGS */
+QDialog {
+    background-color: #252526;
+}
+QLabel {
+    color: #e1e1e1;
+}
+"""
+
+def apply_native_dark_palette(app):
+    app.setStyle("Fusion") 
+    
+    palette = QPalette()
+    palette.setColor(QPalette.ColorRole.Window, QColor(30, 30, 30))
+    palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
+    palette.setColor(QPalette.ColorRole.Base, QColor(37, 37, 38))
+    palette.setColor(QPalette.ColorRole.AlternateBase, QColor(45, 45, 45))
+    palette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.white)
+    palette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
+    palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+    palette.setColor(QPalette.ColorRole.Button, QColor(62, 62, 66))
+    palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
+    palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+    palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+    palette.setColor(QPalette.ColorRole.Highlight, QColor(74, 101, 114))
+    palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+    
+    app.setPalette(palette)
 
 
 class SimulationWorker(QThread):
@@ -590,6 +711,16 @@ class HeatFlowApp(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    # Schriftart anpassen (wie im DataProcessor)
+    font = QFont("Segoe UI", 10)
+    font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
+    QApplication.setFont(font)
+    
+    # Design anwenden
+    apply_native_dark_palette(app)
+    app.setStyleSheet(APP_STYLE)
+    
     window = HeatFlowApp()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec())
