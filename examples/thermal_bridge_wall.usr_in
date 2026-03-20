@@ -1,0 +1,37 @@
+# ============================
+# User Input: Thermobrücke
+# ============================
+
+M = 100         
+N = 100         
+
+dx = 0.001
+dy = 0.001
+
+t_span = (1, 300)
+
+# Isolierende Holzwand
+substrate_material = "Wood (yellow pine)"
+
+components = [
+    # Eisennagel/Bolzen, der quer durch die Wand geht
+    Rectangle(x_center=50, y_center=50, x_length=100, y_length=10, material="Iron")
+]
+
+heat_sources = []
+
+initial_heat_spots = [
+    # Linke Seite: Beheizter Innenraum (20 °C)
+    Rectangle(x_center=25, y_center=50, x_length=50, y_length=100, temp=20),
+    # Rechte Seite: Kalte Außenwelt (-5 °C)
+    Rectangle(x_center=75, y_center=50, x_length=50, y_length=100, temp=-5)
+]
+
+# Da wir einen Temperaturgradienten von links nach rechts simulieren,
+# lassen wir das Setup für sich selbst sprechen
+T_amb = 0
+cool_surface = False
+
+# ============================
+# user Input End
+# ============================

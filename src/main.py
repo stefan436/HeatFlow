@@ -88,9 +88,9 @@ if __name__ == "__main__":
     final_state(sol_tensor, temp_min, temp_max, alpha=alpha)
     show_until_enter()
     
-    # print("Slider Animation")
-    # interactive_heat_map(sol_tensor)
-    # plt.show()
+    print("Slider Animation")
+    interactive_heat_map(sol_tensor, temp_min, temp_max, alpha=alpha)
+    plt.show()
     
     print("Animation")
     ani = animate_heat(sol_tensor, temp_min, temp_max, alpha=alpha)

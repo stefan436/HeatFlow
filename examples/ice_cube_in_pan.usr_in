@@ -1,0 +1,42 @@
+# ============================
+# User Input: Eiswürfel & Herdplatte
+# ============================
+
+M = 100         
+N = 100         
+
+dx = 0.001
+dy = 0.001
+
+t_span = (1, 60)
+
+# Raum als starker Isolator, damit die Hitze in der Pfanne bleibt
+substrate_material = "PTFE (Polytetrafluorethylene) at 25 °C"
+
+components = [
+    # Pfannenboden aus Eisen
+    Rectangle(x_center=50, y_center=25, x_length=80, y_length=10, material="Iron"),
+    # Eiswürfel in der Pfanne
+    Square(x_center=50, y_center=40, side_length=20, material="Ice at 0 °C")
+]
+
+heat_sources = [
+    # Eine heiße Herdplatte (Ring) genau unter der Mitte der Pfanne
+    Rectangle(x_center=50, y_center=15, x_length=40, y_length=10, material="Iron", power=2000000)
+]
+
+initial_heat_spots = [
+    # Raumtemperatur
+    Square(x_center=50, y_center=50, side_length=100, temp=20),
+    # Die Pfanne startet vielleicht schon leicht angewärmt
+    Rectangle(x_center=50, y_center=25, x_length=80, y_length=10, temp=50),
+    # Eiswürfel startet bei Frost
+    Square(x_center=50, y_center=40, side_length=20, temp=-10)
+]
+
+T_amb = 20
+cool_surface = True
+
+# ============================
+# user Input End
+# ============================

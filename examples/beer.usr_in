@@ -1,0 +1,52 @@
+# Copy to user input to src/main.py
+
+# ============================
+# User Input
+# ============================
+
+# size of the plate in mm (scale is determined by dx and dy)
+# origin is bottom left
+M = 100         # x direction
+N = 100         # y direction
+
+# 1mm distance (defines scale)
+dx = 0.001
+dy = 0.001
+
+# time span over which is integrated (seconds)
+t_span = (1, 180)
+
+# Choose substrate Material
+# substrate_material = "PC (polycarbonate) at 25 °C"
+substrate_material = "Air at 27 °C"
+
+# Components which are placed on iron substrate
+# First component in list is "lowest" layer, last component is "top" layer and replaces "lower" layers (if they overlap). 
+components = [
+    Circle(N, M, x_center=50, y_center=50, radius=20, material="Silicon dioxide (polycrystalline)"),
+    Circle(N, M, x_center=50, y_center=50, radius=15, material="Water at 25 °C")
+]
+
+# permanent heating power density (in W/m^2)
+# Same hierarchy as with components 
+heat_sources = [
+    
+]
+
+# Initial heat map (rest is at room temp/23)
+# Same hierarchy as with components 
+initial_heat_spots = [
+    Square(x_center=50, y_center=50, side_length=100, temp=5),
+    Circle(N, M, x_center=50, y_center=50, radius=20, temp=23)
+]
+
+
+# Choose ambient temperature 
+T_amb = 5
+
+# Cool over top and bottom surface (or only thin edges)? defaults to True
+cool_surface = False
+
+# ============================
+# user Input End
+# ============================

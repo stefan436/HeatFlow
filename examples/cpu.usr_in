@@ -1,0 +1,41 @@
+# ============================
+# User Input: CPU Cooling
+# ============================
+
+M = 100         
+N = 100         
+
+dx = 0.001
+dy = 0.001
+
+t_span = (1, 120)
+
+substrate_material = "PC (polycarbonate) at 25 °C"
+
+components = [
+    # Die CPU (Silizium)
+    Square(x_center=50, y_center=20, side_length=20, material="Silicon"),
+    # Heatspreader (Kupfer-Basis)
+    Rectangle(x_center=50, y_center=35, x_length=40, y_length=10, material="Copper at 25 °C"),
+    # Kühlrippen (Aluminium)
+    Rectangle(x_center=35, y_center=60, x_length=4, y_length=40, material="Aluminium"),
+    Rectangle(x_center=50, y_center=60, x_length=4, y_length=40, material="Aluminium"),
+    Rectangle(x_center=65, y_center=60, x_length=4, y_length=40, material="Aluminium")
+]
+
+heat_sources = [
+    # Der Chip erzeugt konstant Wärme
+    Square(x_center=50, y_center=20, side_length=20, material="Silicon", power=1500000)
+]
+
+initial_heat_spots = [
+    # Alles startet bei Raumtemperatur
+    Square(x_center=50, y_center=50, side_length=100, temp=22)
+]
+
+T_amb = 22
+cool_surface = True
+
+# ============================
+# user Input End
+# ============================
