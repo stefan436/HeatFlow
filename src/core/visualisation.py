@@ -38,7 +38,7 @@ def plot_setup_dashboard(alpha, temp_rate_mat, u0):
     im1 = axes[1].imshow(temp_rate_mat, cmap='magma', origin='lower')
     axes[1].set_title("Perm. Wärmeuellen (temp_rate_mat)")
     axes[1].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    fig.colorbar(im1, ax=axes[1], label='Temperatur (°C)')
+    fig.colorbar(im1, ax=axes[1], label='Temperatur Zunahme (°C/s)')
 
     # 3. initial heat map (u0)
     im2 = axes[2].imshow(u0, cmap='hot', origin='lower')
