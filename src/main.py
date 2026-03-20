@@ -54,12 +54,12 @@ initial_heat_spots = [
     Square(x_center=50, y_center=50, side_length=5, temp=23)
 ]
 
-# permanent boundary conditions (choose room temp; infinite cooling power)
-boundary_condition = {"bottom": 23, 
-                      "right": 23,
-                      "top": 23,
-                      "left": 23}
 
+# Choose ambient temperature 
+T_amb = 23
+
+# Cool over top and bottom surface (or only thin edges)? defaults to True
+cool_surface = True
 
 # ============================
 # user Input End
@@ -75,14 +75,13 @@ if __name__ == "__main__":
                                                    substrate_material,
                                                    components,
                                                    heat_sources,
-                                                   initial_heat_spots,
-                                                   boundary_condition)
+                                                   initial_heat_spots)
     
     print("Setup Dashboard")
     plot_setup_dashboard(alpha, temp_rate_mat, u0)
     show_until_enter()
     
-    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy)
+    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface=True)
     
     print("Initial State")
     initial_state(sol_tensor, temp_min, temp_max, alpha=alpha) 

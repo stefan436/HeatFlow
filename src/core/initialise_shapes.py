@@ -5,7 +5,7 @@ import numpy as np
 from .component_shapes import Circle
 from .material import fetch_material_properties
 
-def initialise_matrices(N, M, substrate_material, components, heat_sources, initial_heat_spots, boundary_conditions):
+def initialise_matrices(N, M, substrate_material, components, heat_sources, initial_heat_spots):
     substr_alpha, _ , _ = fetch_material_properties(substrate_material)
     
     # Initialise alpha_mat matrix
@@ -36,10 +36,5 @@ def initialise_matrices(N, M, substrate_material, components, heat_sources, init
             u0[heat_spot.circular_mask] = heat_spot.temp
         else:
             u0[heat_spot.bottom_left[1] : heat_spot.top_right[1], heat_spot.bottom_left[0] : heat_spot.top_right[0]] = heat_spot.temp
-
-    u0[0, :] = boundary_conditions.get("top")
-    u0[-1, :] = boundary_conditions.get("bottom")
-    u0[:, 0] = boundary_conditions.get("left")
-    u0[:, -1] = boundary_conditions.get("right")
     
     return alpha_mat, temp_rate_mat, u0
