@@ -13,10 +13,6 @@ from core.initialise_shapes import initialise_matrices
 # User Input
 # ============================
 
-# values are for the colorbars
-temp_min = 20
-temp_max = 50
-
 # size of the plate in mm (scale is determined by dx and dy)
 # origin is bottom left
 M = 100         # x direction
@@ -82,6 +78,7 @@ if __name__ == "__main__":
     show_until_enter()
     
     sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface=True)
+    temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
     
     print("Initial State")
     initial_state(sol_tensor, temp_min, temp_max, alpha=alpha) 

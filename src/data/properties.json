@@ -1,5 +1,6 @@
 [
   {  "Comment": "Data is taken from Wikipedia (https://en.wikipedia.org/wiki/Thermal_diffusivity) on 18.03.2026. Density (kg/m^3) and specific heat capacity (J/(kg*K)) added subsequently. Ranges were averaged for numeric consistency. Density and heat capacity source not checked."},
+  { "material": "Air at 27 °C", "diffusivity_mm2_s": 19.0, "density_kg_m3": 1.1743, "specific_heat_capacity_J_kg_K": 1012 },
   { "material": "Diamond", "diffusivity_mm2_s": 1110.0, "density_kg_m3": 3515, "specific_heat_capacity_J_kg_K": 509 },
   { "material": "Carbon/carbon composite at 25 °C", "diffusivity_mm2_s": 216.5, "density_kg_m3": 1750, "specific_heat_capacity_J_kg_K": 750 },
   { "material": "Silver, pure (99.9%)", "diffusivity_mm2_s": 165.63, "density_kg_m3": 10490, "specific_heat_capacity_J_kg_K": 235 },
