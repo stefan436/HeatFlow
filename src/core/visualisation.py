@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from matplotlib.animation import FuncAnimation
+import numpy as np
 
 
 def close_on_enter(event):
@@ -19,27 +20,34 @@ def show_until_enter():
 
 
 def plot_setup_dashboard(alpha, temp_rate_mat, u0):
-    """Visualisiert die Eingangsmatrizen: Materialien, Wärmeuellen, Starttemperatur."""
+    """Visualisiert die Eingangsmatrizen: Materialien, Wärmequellen, Starttemperatur."""
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
     fig.suptitle("Simulations-Setup Übersicht", fontsize=16)
+
+    # Lese direkt die eindeutigen Werte aus, statt sie zu zählen
+    unique_alphas = np.unique(alpha)
 
     # 1. Material (Alpha)
     im0 = axes[0].imshow(alpha, cmap='viridis', origin='lower')
     axes[0].set_title("Materialverteilung/Diffusivität (Alpha)")
+    # Übergib das Array 'unique_alphas' direkt an levels
+    axes[0].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
     fig.colorbar(im0, ax=axes[0], label='Diffusivität (m²/s)')
 
     # 2. Heat source (temp_rate_mat)
     im1 = axes[1].imshow(temp_rate_mat, cmap='magma', origin='lower')
     axes[1].set_title("Perm. Wärmeuellen (temp_rate_mat)")
+    axes[1].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
     fig.colorbar(im1, ax=axes[1], label='Temperatur (°C)')
 
     # 3. initial heat map (u0)
     im2 = axes[2].imshow(u0, cmap='hot', origin='lower')
     axes[2].set_title("Initiales Temperaturfeld (u0)")
+    axes[2].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
     fig.colorbar(im2, ax=axes[2], label='Temperatur (°C)')
 
     plt.tight_layout()
-
+    
 
 def initial_state(final_tensor, vmin, vmax, alpha=None):
     fig, ax = plt.subplots()
@@ -49,7 +57,7 @@ def initial_state(final_tensor, vmin, vmax, alpha=None):
     
     # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=3, colors='cyan', linewidths=0.8, alpha=0.6)
+        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
 
 
 def final_state(final_tensor, vmin, vmax, alpha=None):
@@ -60,7 +68,7 @@ def final_state(final_tensor, vmin, vmax, alpha=None):
     
     # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=3, colors='cyan', linewidths=0.8, alpha=0.6)
+        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
 
 
 def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
@@ -69,9 +77,9 @@ def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
 
     im = ax.imshow(sol_tensor[0, :, :], cmap='hot', origin='lower', vmin=vmin, vmax=vmax)
     fig.colorbar(im, label='Temperatur (°C)')
-    
+        
     if alpha is not None:
-        ax.contour(alpha, levels=3, colors='cyan', linewidths=0.8, alpha=0.6)
+        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
 
     ax_time = plt.axes([0.2, 0.1, 0.65, 0.03])
     slider = Slider(ax_time, 'Step', 0, len(sol_tensor)-1, valinit=0, valfmt='%d')
@@ -93,7 +101,7 @@ def animate_heat(sol_tensor, vmin, vmax, alpha=None):
 
     # Overlay to show different materials
     if alpha is not None:
-        ax.contour(alpha, levels=3, colors='cyan', linewidths=0.8, alpha=0.6)
+        ax.contour(alpha, levels=len(np.unique(alpha)), colors='cyan', linewidths=1.2, alpha=0.8)
 
     # frame count
     time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, color='white', fontsize=12, fontweight='bold')
