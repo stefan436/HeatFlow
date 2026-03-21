@@ -2,6 +2,16 @@
 
 HeatFlow ist ein Python-Projekt zur numerischen Lösung und Visualisierung der zweidimensionalen Wärmeleitungsgleichung. Das System simuliert die zeitliche Ausbreitung von Wärme auf einem konfigurierbaren Gitter und stellt die Ergebnisse grafisch dar.
 
+## Inhaltsverzeichnis
+
+- [Physikalische Grenzen & Annahmen](#physikalische-grenzen--annahmen)
+- [Features](#features)
+- [Voraussetzungen](#voraussetzungen)
+- [Installation](#installation)
+- [Nutzung & Steuerung](#nutzung--steuerung)
+  - [1. Steuerung über die grafische Benutzeroberfläche (GUI)](#1-steuerung-über-die-grafische-benutzeroberfläche-gui)
+  - [2. Steuerung über das Skript (`main.py`)](#2-steuerung-über-das-skript-mainpy)
+
 ## Physikalische Grenzen & Annahmen
 
 Um eine effiziente Berechnung zu gewährleisten, basiert die Simulation auf folgenden physikalischen Annahmen und Einschränkungen:
