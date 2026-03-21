@@ -22,7 +22,6 @@ def _edge_rate(du_dt, u, alpha, dx, dy, T_amb, cool_surface):
     if cool_surface:
         const = const * 2
         # boundary conditions with Ellipsis (...) operator works for 2D und 3D
-        # info about Ellipsis operator: to address all dimensions following the first two, regardless of whether there are none, one or many
         # since the edge of the matrix is not taken into account in the calculation above, we copy the neighboring value to the edge
         du_dt[0, ...] = du_dt[1, ...]        
         du_dt[-1, ...] = du_dt[-2, ...]
@@ -57,7 +56,7 @@ def _heat_equation(t, u0_flat, N, M, alpha, temp_rate_mat, dx, dy, T_amb, cool_s
         u = u0_flat.reshape(N, M)
         is_vectorized = False
     else:
-        u = u0_flat.reshape(N, M, -1)       # -1 is an ambiguous number in numpy language
+        u = u0_flat.reshape(N, M, -1)
         is_vectorized = True
     
     du_dt = np.zeros_like(u)
@@ -68,10 +67,6 @@ def _heat_equation(t, u0_flat, N, M, alpha, temp_rate_mat, dx, dy, T_amb, cool_s
     if is_vectorized:
         a = alpha[1:-1, 1:-1, np.newaxis]
         temp_rate = temp_rate_mat[1:-1, 1:-1, np.newaxis]
-    
-    # vector slicing: if [1:-1] is taken from a numpy array we get the original array without the first and the last entry
-    # the next line calculates the whole array at once (this is vectorisation)
-    # numpy broadcasting takes care of the dimensionality in u; only a new dimension/axis has to be added to a and temp_rate_mat
     
     du_dt[1:-1, 1:-1] = a * ((u[2:, 1:-1] - 2*u[1:-1, 1:-1] + u[0:-2, 1:-1]) / dx**2 +
                              (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, 0:-2]) / dy**2) + temp_rate

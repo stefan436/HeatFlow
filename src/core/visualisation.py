@@ -13,7 +13,7 @@ def close_on_enter(event):
 
 def show_until_enter():
     """Connects the enter key to the close function and displays."""
-    fig = plt.gcf() # Get current figure
+    fig = plt.gcf()
     fig.canvas.mpl_connect('key_press_event', close_on_enter)
     print("Press Enter (in the plot) to continue to the next visualisation.")
     plt.show()
@@ -21,17 +21,14 @@ def show_until_enter():
 
 def plot_setup_dashboard(alpha, temp_rate_mat, u0):
     """Visualisiert die Eingangsmatrizen: Materialien, Wärmequellen, Starttemperatur."""
-    # 1. Korrektur: Höhe auf 5 erhöhen und constrained_layout=True aktivieren
     fig, axes = plt.subplots(1, 3, figsize=(16, 5), constrained_layout=True)
     fig.suptitle("Simulations-Setup Übersicht", fontsize=16, fontweight='bold')
 
     unique_alphas = np.unique(alpha)
 
-    # 2. Korrektur: Titel leicht gekürzt für bessere Lesbarkeit
     im0 = axes[0].imshow(alpha, cmap='viridis', origin='lower')
     axes[0].set_title("Materialverteilung (Alpha)")
     axes[0].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    # 3. Korrektur: shrink (macht die Bar kürzer) und pad (schiebt sie vom Plot weg)
     fig.colorbar(im0, ax=axes[0], label='Diffusivität (m²/s)', shrink=0.8, pad=0.05)
 
     im1 = axes[1].imshow(temp_rate_mat, cmap='magma', origin='lower')

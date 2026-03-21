@@ -11,7 +11,6 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from PyQt6.QtWidgets import QTabWidget
 
-# Importiere deine Kernmodule
 from core.solver import HeatEquationSolver
 from core.visualisation import plot_setup_dashboard, initial_state, final_state, interactive_heat_map, animate_heat
 from core.material import material_db
@@ -25,7 +24,6 @@ QMainWindow {
     background-color: #1e1e1e;
 }
 
-/* WICHTIGE ÄNDERUNG: Entferne das '#HeaderBox', damit alle GroupBoxes das Design erhalten */
 QGroupBox {
     background-color: #252526;
     border: 1px solid #3e3e42;
@@ -592,7 +590,6 @@ class HeatFlowApp(QMainWindow):
         bg_item = self.scene.addRect(board_rect, QPen(Qt.GlobalColor.black), QBrush(QColor(220, 220, 220)))
         bg_item.setZValue(-1)
 
-        # Hier auf tatsächliche Selection prüfen anstatt currentItem
         selected_obj = None
         selected_items = self.list_items.selectedItems()
         if selected_items:
@@ -689,7 +686,7 @@ class HeatFlowApp(QMainWindow):
         fig_initial = initial_state(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
         fig_final = final_state(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
         
-        # WICHTIG: Referenzen an self binden, damit der Garbage Collector Slider/Animation nicht killt
+        # WICHTIG: Referenzen an self binden, damit der Garbage Collector Slider/Animation nicht vorzeitig freigibt.
         fig_interactive, self.heat_slider = interactive_heat_map(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
         fig_ani, self.heat_ani = animate_heat(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
 

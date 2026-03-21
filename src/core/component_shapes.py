@@ -25,7 +25,7 @@ class Square():
         # fetch material properties for heat source and component properties
         if material is not None:
             self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
-        elif temp is None:                      # material is not needed if the a heat map initiallised. In this case, temp is mandatory
+        elif temp is None:                      # material is not needed if a heat map is initialized. In this case, temp is mandatory
             raise ValueError(f"\nError: Square at Position X:{self.x_center}/Y:{self.y_center} "
                              f"Material is missing!\n")
         
@@ -36,7 +36,7 @@ class Square():
                                  f"has power (={self.power}), but no material!\n")
             self.temp_rate = (self.power) / (self.rho * dz * H * self.heat_cap)             # Formula based on: heating power [W/m^2] * area = m * heat_cap [J/(K * kg)] * temp_rate [K/S] = rho * area * thickness (dz*H) * heat_cap * temp_rate
         
-    def __repr__(self):                 # if print(Square) is called, this function is executed
+    def __repr__(self):
         return f"Square (Center: {self.x_center}/{self.y_center}, Side: {self.side_length})"
     
     
@@ -62,7 +62,7 @@ class Rectangle():
         # fetch material properties for heat source and component properties
         if material is not None:
             self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
-        elif temp is None:                      # material is not needed if the a heat map initiallised. In this case, temp is mandatory
+        elif temp is None:                      # material is not needed if a heat map is initialized. In this case, temp is mandatory
             raise ValueError(f"\nError: Square at Position X:{self.x_center}/Y:{self.y_center} "
                              f"Material is missing!\n")
         
@@ -73,8 +73,8 @@ class Rectangle():
                                  f"has power (={self.power}), but no material!\n")
             self.temp_rate = (self.power) / (self.rho * dz * H * self.heat_cap)             # Formula based on: heating power [W/m^2] * area = m * heat_cap [J/(K * kg)] * temp_rate [K/S] = rho * area * thickness (dz*H) * heat_cap * temp_rate
         
-    def __repr__(self):                 # if print(Square) is called, this function is executed
-        return f"Rectangele (Center: {self.x_center}/{self.y_center}, Sides: {self.x_length}/{self.y_length})"
+    def __repr__(self):
+        return f"Rectangle (Center: {self.x_center}/{self.y_center}, Sides: {self.x_length}/{self.y_length})"
     
     
 class Circle():
@@ -97,7 +97,7 @@ class Circle():
         # fetch material properties for heat source and component properties
         if material is not None:
             self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
-        elif temp is None:                      # material is not needed if the a heat map initiallised. In this case, temp is mandatory
+        elif temp is None:                      # material is not needed if a heat map is initialized. In this case, temp is mandatory
             raise ValueError(f"\nError: Square at Position X:{self.x_center}/Y:{self.y_center} "
                              f"Material is missing!\n")
         
@@ -108,5 +108,5 @@ class Circle():
                                  f"has power (={self.power}), but no material!\n")
             self.temp_rate = (self.power) / (self.rho * dz * H * self.heat_cap)             # Formula based on: heating power [W/m^2] * area = m * heat_cap [J/(K * kg)] * temp_rate [K/S] = rho * area * thickness (dz*H) * heat_cap * temp_rate
         
-    def __repr__(self):                 # if print(Square) is called, this function is executed
+    def __repr__(self):
         return f"Circle (Center: {self.x_center}/{self.y_center}, Radius: {self.radius})"

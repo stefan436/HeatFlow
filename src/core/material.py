@@ -7,7 +7,7 @@ with open("src/data/properties.json", mode="r", encoding="utf-8") as properties_
     material_db = {
         entry["material"]: [entry["diffusivity_mm2_s"] / 1e6, entry["density_kg_m3"], entry["specific_heat_capacity_J_kg_K"]] # /1e6 converts into SI units (from mm^2/s to m^2/s)
         for entry in data 
-        if "material" in entry                              # adds only entrys where material is available
+        if "material" in entry
     }
     
     
