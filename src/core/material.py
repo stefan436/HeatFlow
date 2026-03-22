@@ -28,3 +28,8 @@ def fetch_material_properties(material_name):
     alpha, rho, heat_cap = properties
     
     return alpha, rho, heat_cap
+
+def fetch_material_props_from_alpha(alpha):
+    for val in material_db.values():
+        if val[0] == alpha:
+            return val          # assuming there are no two different materials with the same alpha

@@ -3,7 +3,7 @@
 import numpy as np
 
 from .material import fetch_material_properties
-from .config_system import dz, H
+
 
 class Square():
     def __init__(self, x_center, y_center, side_length, material=None, temp=None, power=None):
@@ -22,19 +22,19 @@ class Square():
         self.top_right    = (self.x_center + self.half_side_length, self.y_center + self.half_side_length)
         
         
-        # fetch material properties for heat source and component properties
-        if material is not None:
-            self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
-        elif temp is None:                      # material is not needed if a heat map is initialized. In this case, temp is mandatory
-            raise ValueError(f"\nError: Square at Position X:{self.x_center}/Y:{self.y_center} "
-                             f"Material is missing!\n")
-        
-        # calculate temp rate for given heat source
-        if power is not None:
-            if material is None:
-                raise ValueError(f"\nError: Heat Source at Position X:{self.x_center}/Y:{self.y_center} "
-                                 f"has power (={self.power}), but no material!\n")
-            self.temp_rate = (self.power) / (self.rho * dz * H * self.heat_cap)             # Formula based on: heating power [W/m^2] * area = m * heat_cap [J/(K * kg)] * temp_rate [K/S] = rho * area * thickness (dz*H) * heat_cap * temp_rate
+        # check validity of the input
+        inputs = [material, temp, power]
+        # count number of not None
+        if sum(v is not None for v in inputs) == 1:
+            if material is not None:
+                self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
+            elif temp is not None:
+                pass
+            else:
+                pass
+        else:
+            raise ValueError("Exactly one of the three parameters (material, temp, power) must be specified")
+
         
     def __repr__(self):
         return f"Square (Center: {self.x_center}/{self.y_center}, Side: {self.side_length})"
@@ -59,19 +59,18 @@ class Rectangle():
         self.top_right    = (self.x_center + self.half_x_length, self.y_center + self.half_y_length)
         
         
-        # fetch material properties for heat source and component properties
-        if material is not None:
-            self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
-        elif temp is None:                      # material is not needed if a heat map is initialized. In this case, temp is mandatory
-            raise ValueError(f"\nError: Square at Position X:{self.x_center}/Y:{self.y_center} "
-                             f"Material is missing!\n")
-        
-        # calculate temp rate for given heat source
-        if power is not None:
-            if material is None:
-                raise ValueError(f"\nError: Heat Source at Position X:{self.x_center}/Y:{self.y_center} "
-                                 f"has power (={self.power}), but no material!\n")
-            self.temp_rate = (self.power) / (self.rho * dz * H * self.heat_cap)             # Formula based on: heating power [W/m^2] * area = m * heat_cap [J/(K * kg)] * temp_rate [K/S] = rho * area * thickness (dz*H) * heat_cap * temp_rate
+        # check validity of the input
+        inputs = [material, temp, power]
+        # count number of not None
+        if sum(v is not None for v in inputs) == 1:
+            if material is not None:
+                self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
+            elif temp is not None:
+                pass
+            else:
+                pass
+        else:
+            raise ValueError("Exactly one of the three parameters (material, temp, power) must be specified")
         
     def __repr__(self):
         return f"Rectangle (Center: {self.x_center}/{self.y_center}, Sides: {self.x_length}/{self.y_length})"
@@ -94,19 +93,18 @@ class Circle():
         
         self.circular_mask = dist_from_center < self.radius
 
-        # fetch material properties for heat source and component properties
-        if material is not None:
-            self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
-        elif temp is None:                      # material is not needed if a heat map is initialized. In this case, temp is mandatory
-            raise ValueError(f"\nError: Square at Position X:{self.x_center}/Y:{self.y_center} "
-                             f"Material is missing!\n")
-        
-        # calculate temp rate for given heat source
-        if power is not None:
-            if material is None:
-                raise ValueError(f"\nError: Heat Source at Position X:{self.x_center}/Y:{self.y_center} "
-                                 f"has power (={self.power}), but no material!\n")
-            self.temp_rate = (self.power) / (self.rho * dz * H * self.heat_cap)             # Formula based on: heating power [W/m^2] * area = m * heat_cap [J/(K * kg)] * temp_rate [K/S] = rho * area * thickness (dz*H) * heat_cap * temp_rate
+        # check validity of the input
+        inputs = [material, temp, power]
+        # count number of not None
+        if sum(v is not None for v in inputs) == 1:
+            if material is not None:
+                self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
+            elif temp is not None:
+                pass
+            else:
+                pass
+        else:
+            raise ValueError("Exactly one of the three parameters (material, temp, power) must be specified")
         
     def __repr__(self):
         return f"Circle (Center: {self.x_center}/{self.y_center}, Radius: {self.radius})"

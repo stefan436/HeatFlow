@@ -23,39 +23,42 @@ dx = 0.001
 dy = 0.001
 
 # time span over which is integrated (seconds)
-t_span = (1, 60)
+t_span = (1, 3600)
 
 # Choose substrate Material
-substrate_material = "PC (polycarbonate) at 25 °C"
+substrate_material = "PC (polycarbonate)"
 
 
 # Components which are placed on iron substrate
 # First component in list is "lowest" layer, last component is "top" layer and replaces "lower" layers (if they overlap). 
+# component must pass material
 components = [
-    Rectangle(x_center=50, y_center=50, x_length=4, y_length=50, material="Copper at 25 °C"),
+    Rectangle(x_center=50, y_center=50, x_length=4, y_length=50, material="Copper"),
     Square(x_center=50, y_center=25, side_length=10, material="Silicon"),
     Square(x_center=50, y_center=75, side_length=10, material="Silicon")
 ]
 
 # permanent heating power density (in W/m^2)
 # Same hierarchy as with components 
+# heat_source must pass power
 heat_sources = [
-    Circle(N, M, x_center=50, y_center=25, radius=5, material="Silicon", power=1000000),
-    Circle(N, M, x_center=50, y_center=75, radius=5, material="Silicon", power=1000000)
+    Circle(N, M, x_center=50, y_center=25, radius=20, power=1000000),
+    Circle(N, M, x_center=50, y_center=75, radius=20, power=1000000)
 ]
 
-# Initial heat map (rest is at room temp/23)
+# Initial heat map (rest is at room temp/t_amb)
 # Same hierarchy as with components 
+# initial_heat_spots must pass temp
 initial_heat_spots = [
     Square(x_center=50, y_center=50, side_length=5, temp=100)
 ]
 
 
 # Choose ambient temperature 
-T_amb = 4
+T_amb = 23
 
 # Cool over top and bottom surface (or only thin edges)? defaults to True
-cool_surface = True
+cool_surface = False
 
 # ============================
 # user Input End
