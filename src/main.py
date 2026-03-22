@@ -47,12 +47,12 @@ heat_sources = [
 # Initial heat map (rest is at room temp/23)
 # Same hierarchy as with components 
 initial_heat_spots = [
-    Square(x_center=50, y_center=50, side_length=5, temp=23)
+    Square(x_center=50, y_center=50, side_length=5, temp=100)
 ]
 
 
 # Choose ambient temperature 
-T_amb = 23
+T_amb = 4
 
 # Cool over top and bottom surface (or only thin edges)? defaults to True
 cool_surface = True
@@ -71,7 +71,8 @@ if __name__ == "__main__":
                                                    substrate_material,
                                                    components,
                                                    heat_sources,
-                                                   initial_heat_spots)
+                                                   initial_heat_spots, 
+                                                   T_amb)
     
     print("Setup Dashboard")
     plot_setup_dashboard(alpha, temp_rate_mat, u0)

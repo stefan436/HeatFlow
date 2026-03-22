@@ -648,7 +648,7 @@ class HeatFlowApp(QMainWindow):
             cool_surface = self.check_cool.isChecked()
 
             self.status_label.setText("Erstelle Matrizen...")
-            alpha, temp_rate_mat, u0 = initialise_matrices(N, M, substrate, self.components, self.heat_sources, self.initial_heat_spots)
+            alpha, temp_rate_mat, u0 = initialise_matrices(N, M, substrate, self.components, self.heat_sources, self.initial_heat_spots, T_amb)
 
             self.current_alpha = alpha
             self.temp_rate_mat = temp_rate_mat
