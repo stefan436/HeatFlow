@@ -58,7 +58,7 @@ initial_heat_spots = [
 T_amb = 23
 
 # Cool over top and bottom surface (or only thin edges)? defaults to True
-cool_surface = False
+cool_surface = True
 
 # ============================
 # user Input End
@@ -70,18 +70,18 @@ cool_surface = False
 if __name__ == "__main__":
     display_available_materials()    
     
-    alpha, temp_rate_mat, u0 = initialise_matrices(N, M,
-                                                   substrate_material,
-                                                   components,
-                                                   heat_sources,
-                                                   initial_heat_spots, 
-                                                   T_amb)
+    alpha, temp_rate_mat, u0, rho_mat, heat_cap_mat = initialise_matrices(N, M,
+                                                                          substrate_material,
+                                                                          components,
+                                                                          heat_sources,
+                                                                          initial_heat_spots, 
+                                                                          T_amb)
     
     print("Setup Dashboard")
     plot_setup_dashboard(alpha, temp_rate_mat, u0)
     show_until_enter()
     
-    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface)
+    sol_tensor = HeatEquationSolver(alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
     temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
     
     print("Initial State")
@@ -94,8 +94,8 @@ if __name__ == "__main__":
     
     print("Slider Animation")
     fig_slider, slider =interactive_heat_map(sol_tensor, temp_min, temp_max, alpha=alpha)
-    plt.show()
+    show_until_enter()
     
     print("Animation")
     fig_ani, ani = animate_heat(sol_tensor, temp_min, temp_max, alpha=alpha)
-    plt.show()
+    show_until_enter()

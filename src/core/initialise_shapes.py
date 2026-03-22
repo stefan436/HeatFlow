@@ -3,33 +3,30 @@
 import numpy as np
 
 from .component_shapes import Circle
-from .material import fetch_material_properties, fetch_material_props_from_alpha
+from .material import fetch_material_properties
 from .config_system import dz, H
 
 def initialise_matrices(N, M, substrate_material, components, heat_sources, initial_heat_spots, T_amb):
-    substr_alpha, _ , _ = fetch_material_properties(substrate_material)
+    substr_alpha, substr_rho , substr_heat_cap = fetch_material_properties(substrate_material)
     
     # Initialise alpha_mat matrix
     alpha_mat = np.zeros(shape=(N,M))
     alpha_mat[:, :] = substr_alpha
+    # Initialise auxiliary matrix (rho and heat cap)
+    rho_mat = np.zeros_like(alpha_mat)
+    heat_cap_mat = np.zeros_like(alpha_mat)
+    rho_mat[:, :] = substr_rho
+    heat_cap_mat[:, :] = substr_heat_cap
     for component in components:
         
         if isinstance(component, Circle):
             alpha_mat[component.circular_mask] = component.alpha
+            rho_mat[component.circular_mask] = component.rho
+            heat_cap_mat[component.circular_mask] = component.heat_cap
         else:
             alpha_mat[component.bottom_left[1] : component.top_right[1], component.bottom_left[0] : component.top_right[0]] = component.alpha
-
-
-    # Initialise auxiliary matrix (rho and heat cap)
-    unique_alphas, unique_alphas_idx = np.unique(alpha_mat, return_inverse=True)
-    unique_rho, unique_heat_cap = np.array([]), np.array([])
-    for idx, val in enumerate(unique_alphas):
-        material_properties = fetch_material_props_from_alpha(alpha=val)
-        unique_rho, unique_heat_cap = np.append(unique_rho, material_properties[1]), np.append(unique_heat_cap, material_properties[2])
-        
-    rho_mat = unique_rho[unique_alphas_idx]
-    heat_cap_mat = unique_heat_cap[unique_alphas_idx]
-    
+            rho_mat[component.bottom_left[1] : component.top_right[1], component.bottom_left[0] : component.top_right[0]] = component.rho
+            heat_cap_mat[component.bottom_left[1] : component.top_right[1], component.bottom_left[0] : component.top_right[0]] = component.heat_cap
 
     # Initialise temperature rate matrix (for heating)
     temp_rate_mat_final = np.zeros_like(alpha_mat)
@@ -53,4 +50,4 @@ def initialise_matrices(N, M, substrate_material, components, heat_sources, init
         else:
             u0[heat_spot.bottom_left[1] : heat_spot.top_right[1], heat_spot.bottom_left[0] : heat_spot.top_right[0]] = heat_spot.temp
     
-    return alpha_mat, temp_rate_mat_final, u0
+    return alpha_mat, temp_rate_mat_final, u0, rho_mat, heat_cap_mat
