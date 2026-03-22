@@ -8,21 +8,21 @@ N = 100
 dx = 0.001
 dy = 0.001
 
-t_span = (1, 60)
+t_span = (1, 3600)
 
 # Raum als starker Isolator, damit die Hitze in der Pfanne bleibt
-substrate_material = "PTFE (Polytetrafluorethylene) at 25 °C"
+substrate_material = "PTFE (Polytetrafluorethylene)"
 
 components = [
     # Pfannenboden aus Eisen
     Rectangle(x_center=50, y_center=25, x_length=80, y_length=10, material="Iron"),
     # Eiswürfel in der Pfanne
-    Square(x_center=50, y_center=40, side_length=20, material="Ice at 0 °C")
+    Square(x_center=50, y_center=40, side_length=20, material="Ice")
 ]
 
 heat_sources = [
     # Eine heiße Herdplatte (Ring) genau unter der Mitte der Pfanne
-    Rectangle(x_center=50, y_center=15, x_length=40, y_length=10, material="Iron", power=2000000)
+    Rectangle(x_center=50, y_center=15, x_length=40, y_length=10, power=2000000)
 ]
 
 initial_heat_spots = [

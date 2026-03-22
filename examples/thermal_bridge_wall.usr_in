@@ -8,7 +8,7 @@ N = 100
 dx = 0.001
 dy = 0.001
 
-t_span = (1, 300)
+t_span = (1, 3600)
 
 # Isolierende Holzwand
 substrate_material = "Wood (yellow pine)"

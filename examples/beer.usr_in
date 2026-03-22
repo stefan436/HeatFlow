@@ -18,14 +18,14 @@ dy = 0.001
 t_span = (1, 3600)
 
 # Choose substrate Material
-# substrate_material = "PC (polycarbonate) at 25 °C"
-substrate_material = "Air at 27 °C"
+# substrate_material = "PC (polycarbonate)"
+substrate_material = "Air"
 
 # Components which are placed on iron substrate
 # First component in list is "lowest" layer, last component is "top" layer and replaces "lower" layers (if they overlap). 
 components = [
     Circle(N, M, x_center=50, y_center=50, radius=20, material="Silicon dioxide (polycrystalline)"),
-    Circle(N, M, x_center=50, y_center=50, radius=15, material="Water at 25 °C")
+    Circle(N, M, x_center=50, y_center=50, radius=15, material="Water")
 ]
 
 # permanent heating power density (in W/m^2)
