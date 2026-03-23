@@ -10,14 +10,14 @@ dy = 0.001
 
 t_span = (1, 3600)
 
-# Substrat (Luft fehlt in DB, 'Aerogel' als starker Isolator genutzt)
-substrate_material = "Aerogel"
+# Substrat Luft
+substrate_material = "Luft"
 
 components = [
     # Flasche (Glas)
     Circle(N, M, x_center=50, y_center=50, radius=20, material="Glas"),
     # Flüssigkeit (Wasser fehlt in DB, 'Gummi' als Platzhalter für hohe Wärmekapazität)
-    Circle(N, M, x_center=50, y_center=50, radius=15, material="Gummi")
+    Circle(N, M, x_center=50, y_center=50, radius=15, material="Wasser (0 °C)")
 ]
 
 heat_sources = []

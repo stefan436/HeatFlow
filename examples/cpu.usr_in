@@ -1,5 +1,5 @@
 # ============================
-# User Input: CPU Cooling
+# User Input: CPU Cooling (Realistic Stack)
 # ============================
 
 M = 100         
@@ -10,22 +10,32 @@ dy = 0.001
 
 t_span = (1, 3600)
 
-substrate_material = "Polycarbonat"
+# Umgebende Luft als Substrat
+substrate_material = "Luft"
 
 components = [
-    # Die CPU (Silizium)
-    Square(x_center=50, y_center=20, side_length=20, material="Silizium"),
-    # Heatspreader (Kupfer-Basis)
-    Rectangle(x_center=50, y_center=35, x_length=40, y_length=10, material="Kupfer (rein)"),
-    # Kühlrippen (Aluminium)
-    Rectangle(x_center=35, y_center=60, x_length=4, y_length=40, material="Aluminium (99,5 %)"),
-    Rectangle(x_center=50, y_center=60, x_length=4, y_length=40, material="Aluminium (99,5 %)"),
-    Rectangle(x_center=65, y_center=60, x_length=4, y_length=40, material="Aluminium (99,5 %)")
+    # 1. PCB / Platine (Epoxidharz als Näherung für FR4)
+    Rectangle(x_center=50, y_center=10, x_length=80, y_length=6, material="Epoxidharz (EP)"),
+    
+    # 2. CPU Die (Silizium) - sitzt mittig auf dem PCB
+    Square(x_center=50, y_center=18, side_length=10, material="Silizium"),
+    
+    # 3. Heatspreader (Kupfer) - nimmt die Wärme vom kleineren Chip auf
+    Rectangle(x_center=50, y_center=25, x_length=40, y_length=4, material="Kupfer (rein)"),
+    
+    # 4. Kühlkörper Basis (Aluminium) - verbindet die Rippen
+    Rectangle(x_center=50, y_center=29, x_length=40, y_length=4, material="Aluminium (99,5 %)"),
+    
+    # 5. Einzelne Kühlrippen (Aluminium)
+    Rectangle(x_center=35, y_center=45, x_length=4, y_length=28, material="Aluminium (99,5 %)"),
+    Rectangle(x_center=45, y_center=45, x_length=4, y_length=28, material="Aluminium (99,5 %)"),
+    Rectangle(x_center=55, y_center=45, x_length=4, y_length=28, material="Aluminium (99,5 %)"),
+    Rectangle(x_center=65, y_center=45, x_length=4, y_length=28, material="Aluminium (99,5 %)")
 ]
 
 heat_sources = [
     # Der Chip erzeugt konstant Wärme
-    Square(x_center=50, y_center=20, side_length=20, power=1500000)
+    Square(x_center=50, y_center=18, side_length=10, power=2000000)
 ]
 
 initial_heat_spots = [
@@ -34,7 +44,7 @@ initial_heat_spots = [
 ]
 
 T_amb = 22
-cool_surface = True
+cool_surface = False
 
 # ============================
 # user Input End
