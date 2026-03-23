@@ -4,8 +4,32 @@ import math
 
 import numpy as np
 from scipy.integrate import solve_ivp
+import scipy.sparse as sp
 
 from .config_system import conv_coeff, H, dz
+
+
+def create_sparsity_matrix(N, M):
+    """
+    Constructs the CSR sparsity pattern for a 2D finite difference stencil.
+    The matrix defines the interaction between a point and its 5-point stencil 
+    (self, horizontal, and vertical neighbors) in a flattened N x M grid.
+    """
+    K = N * M
+    
+    # Define diagonals for the 5-point stencil: self, left/right, and top/bottom
+    diagonals = [
+        np.ones(K),       # Main diagonal
+        np.ones(K - 1),   # Horizontal neighbors
+        np.ones(K - 1), 
+        np.ones(K - M),   # Vertical neighbors (offset by row width M)
+        np.ones(K - M)
+    ]
+    
+    offsets = [0, -1, 1, -M, M]
+    
+    # Return as Compressed Sparse Row (CSR) for efficient solver performance
+    return sp.diags(diagonals, offsets, shape=(K, K), format='csr')
 
 def _edge_rate(du_dt, u, dx, dy, T_amb, cool_surface, rho_mat, heat_cap_mat):
     # cooling only over the thin edge/rim; Completly isolated top and bottom, no heat transfer
@@ -94,11 +118,13 @@ def _heat_equation(t, u0_flat, N, M, lambda_mat, rho_mat, heat_cap_mat, q_mat, d
 def HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface=True):
     # --- Solve heat equation --- 
     u0_flat = u0.flatten()
+    sparsity_mat = create_sparsity_matrix(N, M)
     print("Starte Integration...")
     sol = solve_ivp(_heat_equation,
                     t_span=t_span,
                     y0=u0_flat,
                     method="BDF",               # industry standard for stiff differential equations
+                    jac_sparsity=sparsity_mat,  
                     args=(N, M, lambda_mat, rho_mat, heat_cap_mat, q_mat, dx, dy, T_amb, cool_surface),
                     vectorized=True)  
     print("Integration abgeschlossen.")                            # end progress bar
