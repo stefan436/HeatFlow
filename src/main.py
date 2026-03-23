@@ -85,11 +85,11 @@ if __name__ == "__main__":
     time_steps, sol_tensor = HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
     temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
     
-    print("Initial State")
+    print("Startzustand")
     initial_state(sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat) 
     show_until_enter()
         
-    print("Final State")
+    print("Endzustand")
     final_state(sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
     show_until_enter()
 

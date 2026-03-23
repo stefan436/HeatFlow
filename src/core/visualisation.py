@@ -15,7 +15,7 @@ def show_until_enter():
     """Connects the enter key to the close function and displays."""
     fig = plt.gcf()
     fig.canvas.mpl_connect('key_press_event', close_on_enter)
-    print("Press Enter (in the plot) to continue to the next visualisation.")
+    print("Drücke Enter (im Fenster), um zur nächsten Visualisierung zu gelangen.")
     plt.show()
 
 
@@ -85,7 +85,7 @@ def interactive_heat_map(time_steps, sol_tensor, vmin, vmax, lambda_mat=None):
         ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
 
     ax_time = plt.axes([0.2, 0.1, 0.65, 0.03])
-    slider = Slider(ax_time, 'Step', 0, len(sol_tensor)-1, valinit=0, valfmt='%d')
+    slider = Slider(ax_time, 'Integrationsschritt', 0, len(sol_tensor)-1, valinit=0, valfmt='%d')
 
     def update(val):
         t_idx = int(slider.val)

@@ -33,11 +33,11 @@ class Square():
             else:
                 pass
         else:
-            raise ValueError("Exactly one of the three parameters (material, temp, power) must be specified")
+            raise ValueError("Genau einer der drei Parameter (material, temp, power) muss angegeben werden.")
 
         
     def __repr__(self):
-        return f"Square (Center: {self.x_center}/{self.y_center}, Side: {self.side_length})"
+        return f"Quadrat (Zentrum: {self.x_center}/{self.y_center}, Seite: {self.side_length})"
     
     
 class Rectangle():
@@ -70,10 +70,10 @@ class Rectangle():
             else:
                 pass
         else:
-            raise ValueError("Exactly one of the three parameters (material, temp, power) must be specified")
+            raise ValueError("Genau einer der drei Parameter (material, temp, power) muss angegeben werden.")
         
     def __repr__(self):
-        return f"Rectangle (Center: {self.x_center}/{self.y_center}, Sides: {self.x_length}/{self.y_length})"
+        return f"Rechteck (Zentrum: {self.x_center}/{self.y_center}, Seiten: {self.x_length}/{self.y_length})"
     
     
 class Circle():
@@ -104,7 +104,7 @@ class Circle():
             else:
                 pass
         else:
-            raise ValueError("Exactly one of the three parameters (material, temp, power) must be specified")
+            raise ValueError("Genau einer der drei Parameter (material, temp, power) muss angegeben werden.")
         
     def __repr__(self):
-        return f"Circle (Center: {self.x_center}/{self.y_center}, Radius: {self.radius})"
+        return f"Kreis (Zentrum: {self.x_center}/{self.y_center}, Radius: {self.radius})"

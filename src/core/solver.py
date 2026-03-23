@@ -94,14 +94,14 @@ def _heat_equation(t, u0_flat, N, M, lambda_mat, rho_mat, heat_cap_mat, q_mat, d
 def HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface=True):
     # --- Solve heat equation --- 
     u0_flat = u0.flatten()
-    print("Start integration...")
+    print("Starte Integration...")
     sol = solve_ivp(_heat_equation,
                     t_span=t_span,
                     y0=u0_flat,
                     method="BDF",               # industry standard for stiff differential equations
                     args=(N, M, lambda_mat, rho_mat, heat_cap_mat, q_mat, dx, dy, T_amb, cool_surface),
                     vectorized=True)  
-    print("Integration completed.")                            # end progress bar
+    print("Integration abgeschlossen.")                            # end progress bar
     num_of_timesteps = sol.y.shape[1]           # number of time steps for which the equation is solved
     sol_T = sol.y.T                             # transposes from (length of flattened matrix, timesteps) --> (timesteps, length of flattened matrix)
     final_sol = sol_T.reshape((num_of_timesteps, N, M))
