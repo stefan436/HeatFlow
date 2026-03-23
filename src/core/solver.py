@@ -105,4 +105,5 @@ def HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_m
     num_of_timesteps = sol.y.shape[1]           # number of time steps for which the equation is solved
     sol_T = sol.y.T                             # transposes from (length of flattened matrix, timesteps) --> (timesteps, length of flattened matrix)
     final_sol = sol_T.reshape((num_of_timesteps, N, M))
-    return final_sol
+    sol_time = sol.t
+    return sol_time, final_sol

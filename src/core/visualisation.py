@@ -71,14 +71,16 @@ def final_state(final_tensor, vmin, vmax, lambda_mat=None):
     return fig
 
 
-def interactive_heat_map(sol_tensor, vmin, vmax, lambda_mat=None):
+def interactive_heat_map(time_steps, sol_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=0.25)
 
     im = ax.imshow(sol_tensor[0, :, :], cmap='hot', origin='lower', vmin=vmin, vmax=vmax)
     fig.colorbar(im, label='Temperatur (°C)')
+    
+    # NEU: Initiale Zeit als Titel setzen
+    ax.set_title(f"Zeit: {time_steps[0]:.1f} s")
         
-    # Overlay to show different materials
     if lambda_mat is not None:
         ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
 
@@ -88,30 +90,28 @@ def interactive_heat_map(sol_tensor, vmin, vmax, lambda_mat=None):
     def update(val):
         t_idx = int(slider.val)
         im.set_data(sol_tensor[t_idx, :, :])
+        ax.set_title(f"Zeit: {time_steps[t_idx]:.1f} s")
         fig.canvas.draw_idle()
 
     slider.on_changed(update)
     return fig, slider
 
 
-def animate_heat(sol_tensor, vmin, vmax, lambda_mat=None):
+def animate_heat(time_steps, sol_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     im = ax.imshow(sol_tensor[0, :, :], cmap='hot', origin='lower', vmin=vmin, vmax=vmax)
     ax.set_title("Animation Wärmefluss")
     plt.colorbar(im, label='Temperatur (°C)')
 
-    # Overlay to show different materials
     if lambda_mat is not None:
         ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
 
-    # frame count
     time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, color='white', fontsize=12, fontweight='bold')
 
     def update(frame):
         im.set_data(sol_tensor[frame, :, :])
-        time_text.set_text(f'Frame: {frame}')
+        time_text.set_text(f'Zeit: {time_steps[frame]:.1f} s')
         return [im, time_text]
 
-    # The 'ani' reference must be returned; otherwise, the garbage collector will delete the animation
-    ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=False)   # blit=False keeps the lambda_mat contour for every frame
+    ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=False)
     return fig, ani

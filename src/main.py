@@ -82,7 +82,7 @@ if __name__ == "__main__":
     plot_setup_dashboard(lambda_mat, q_mat, u0)
     show_until_enter()
     
-    sol_tensor = HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
+    time_steps, sol_tensor = HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
     temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
     
     print("Initial State")
@@ -92,11 +92,11 @@ if __name__ == "__main__":
     print("Final State")
     final_state(sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
     show_until_enter()
-    
-    print("Slider Animation")
-    fig_slider, slider =interactive_heat_map(sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
+
+    print("Animation")
+    fig_ani, ani = animate_heat(time_steps, sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
     show_until_enter()
     
-    print("Animation")
-    fig_ani, ani = animate_heat(sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
+    print("Slider Animation")
+    fig_slider, slider = interactive_heat_map(time_steps, sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
     show_until_enter()
