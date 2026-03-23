@@ -5,7 +5,7 @@ import json
 with open("src/data/properties.json", mode="r", encoding="utf-8") as properties_file:
     data = json.load(properties_file)
     material_db = {
-        entry["material"]: [entry["diffusivity_mm2_s"] / 1e6, entry["density_kg_m3"], entry["specific_heat_capacity_J_kg_K"]] # /1e6 converts into SI units (from mm^2/s to m^2/s)
+        entry["material"]: [entry["thermal_conductivity_W_m_K"], entry["density_kg_m3"], entry["specific_heat_capacity_J_kg_K"]] 
         for entry in data 
         if "material" in entry
     }
@@ -25,6 +25,6 @@ def fetch_material_properties(material_name):
         raise ValueError(f"Material '{material_name}' wurde in der properties.json nicht gefunden! "
                          f"Verfügbar sind: {list(material_db.keys())}")
         
-    alpha, rho, heat_cap = properties
+    th_cond, rho, heat_cap = properties
     
-    return alpha, rho, heat_cap
+    return th_cond, rho, heat_cap

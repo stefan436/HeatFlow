@@ -19,56 +19,59 @@ def show_until_enter():
     plt.show()
 
 
-def plot_setup_dashboard(alpha, temp_rate_mat, u0):
+def plot_setup_dashboard(lambda_mat, q_mat, u0):
     """Visualisiert die Eingangsmatrizen: Materialien, Wärmequellen, Starttemperatur."""
     fig, axes = plt.subplots(1, 3, figsize=(16, 5), constrained_layout=True)
     fig.suptitle("Simulations-Setup Übersicht", fontsize=16, fontweight='bold')
 
-    unique_alphas = np.unique(alpha)
+    unique_lambda_mats = np.unique(lambda_mat)
 
-    im0 = axes[0].imshow(alpha, cmap='viridis', origin='lower')
-    axes[0].set_title("Materialverteilung (Alpha)")
-    axes[0].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    fig.colorbar(im0, ax=axes[0], label='Diffusivität (m²/s)', shrink=0.8, pad=0.05)
+    # 1. Plot: Wärmeleitfähigkeit
+    im0 = axes[0].imshow(lambda_mat, cmap='viridis', origin='lower')
+    axes[0].set_title("Wärmeleitfähigkeit (lambda_mat)")
+    axes[0].contour(lambda_mat, levels=unique_lambda_mats, colors='cyan', linewidths=0.8, alpha=0.6)
+    fig.colorbar(im0, ax=axes[0], label='Wärmeleitfähigkeit (W/(m·K))', shrink=0.8, pad=0.05)
 
-    im1 = axes[1].imshow(temp_rate_mat, cmap='magma', origin='lower')
-    axes[1].set_title("Perm. Wärmequellen")
-    axes[1].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
-    fig.colorbar(im1, ax=axes[1], label='Temperatur Zunahme (°C/s)', shrink=0.8, pad=0.05)
+    # 2. Plot: Volumetrische Wärmeleistung
+    im1 = axes[1].imshow(q_mat, cmap='magma', origin='lower')
+    axes[1].set_title("Perm. Wärmequellen (q_mat)")
+    axes[1].contour(lambda_mat, levels=unique_lambda_mats, colors='cyan', linewidths=0.8, alpha=0.6)
+    fig.colorbar(im1, ax=axes[1], label='Volumetrische Leistung (W/m³)', shrink=0.8, pad=0.05)
 
+    # 3. Plot: Initiales Temperaturfeld
     im2 = axes[2].imshow(u0, cmap='hot', origin='lower')
-    axes[2].set_title("Initiales Temperaturfeld")
-    axes[2].contour(alpha, levels=unique_alphas, colors='cyan', linewidths=0.8, alpha=0.6)
+    axes[2].set_title("Initiales Temperaturfeld (u0)")
+    axes[2].contour(lambda_mat, levels=unique_lambda_mats, colors='cyan', linewidths=0.8, alpha=0.6)
     fig.colorbar(im2, ax=axes[2], label='Temperatur (°C)', shrink=0.8, pad=0.05)
 
     return fig
     
 
-def initial_state(final_tensor, vmin, vmax, alpha=None):
+def initial_state(final_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     im = ax.imshow(final_tensor[0, :, :], cmap="hot", vmin=vmin, vmax=vmax, origin="lower")
     ax.set_title("Startzustand der Simulation")
     plt.colorbar(im, label='Temperatur (°C)')
     
     # Overlay to show different materials
-    if alpha is not None:
-        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
+    if lambda_mat is not None:
+        ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
     return fig
 
 
-def final_state(final_tensor, vmin, vmax, alpha=None):
+def final_state(final_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     im = ax.imshow(final_tensor[-1, :, :], cmap="hot", vmin=vmin, vmax=vmax, origin="lower")
     ax.set_title(f"Endzustand (Frame {len(final_tensor)-1})")
     plt.colorbar(im, label='Temperatur (°C)')
     
     # Overlay to show different materials
-    if alpha is not None:
-        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
+    if lambda_mat is not None:
+        ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
     return fig
 
 
-def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
+def interactive_heat_map(sol_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=0.25)
 
@@ -76,8 +79,8 @@ def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
     fig.colorbar(im, label='Temperatur (°C)')
         
     # Overlay to show different materials
-    if alpha is not None:
-        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
+    if lambda_mat is not None:
+        ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
 
     ax_time = plt.axes([0.2, 0.1, 0.65, 0.03])
     slider = Slider(ax_time, 'Step', 0, len(sol_tensor)-1, valinit=0, valfmt='%d')
@@ -91,15 +94,15 @@ def interactive_heat_map(sol_tensor, vmin, vmax, alpha=None):
     return fig, slider
 
 
-def animate_heat(sol_tensor, vmin, vmax, alpha=None):
+def animate_heat(sol_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     im = ax.imshow(sol_tensor[0, :, :], cmap='hot', origin='lower', vmin=vmin, vmax=vmax)
     ax.set_title("Animation Wärmefluss")
     plt.colorbar(im, label='Temperatur (°C)')
 
     # Overlay to show different materials
-    if alpha is not None:
-        ax.contour(alpha, levels=np.unique(alpha), colors='cyan', linewidths=0.8, alpha=0.6)
+    if lambda_mat is not None:
+        ax.contour(lambda_mat, levels=np.unique(lambda_mat), colors='cyan', linewidths=0.8, alpha=0.6)
 
     # frame count
     time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, color='white', fontsize=12, fontweight='bold')
@@ -110,5 +113,5 @@ def animate_heat(sol_tensor, vmin, vmax, alpha=None):
         return [im, time_text]
 
     # The 'ani' reference must be returned; otherwise, the garbage collector will delete the animation
-    ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=False)   # blit=False keeps the alpha contour for every frame
+    ani = FuncAnimation(fig, update, frames=len(sol_tensor), interval=50, blit=False)   # blit=False keeps the lambda_mat contour for every frame
     return fig, ani

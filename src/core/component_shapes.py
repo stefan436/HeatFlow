@@ -27,7 +27,7 @@ class Square():
         # count number of not None
         if sum(v is not None for v in inputs) == 1:
             if material is not None:
-                self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
+                self.lambda_val, self.rho, self.heat_cap = fetch_material_properties(self.material)
             elif temp is not None:
                 pass
             else:
@@ -64,7 +64,7 @@ class Rectangle():
         # count number of not None
         if sum(v is not None for v in inputs) == 1:
             if material is not None:
-                self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
+                self.lambda_val, self.rho, self.heat_cap = fetch_material_properties(self.material)
             elif temp is not None:
                 pass
             else:
@@ -98,7 +98,7 @@ class Circle():
         # count number of not None
         if sum(v is not None for v in inputs) == 1:
             if material is not None:
-                self.alpha, self.rho, self.heat_cap = fetch_material_properties(self.material)
+                self.lambda_val, self.rho, self.heat_cap = fetch_material_properties(self.material)
             elif temp is not None:
                 pass
             else:
