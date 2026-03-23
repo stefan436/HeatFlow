@@ -11,13 +11,13 @@ dy = 0.001
 t_span = (1, 3600)
 
 # Raum als starker Isolator, damit die Hitze in der Pfanne bleibt
-substrate_material = "PTFE (Polytetrafluorethylene)"
+substrate_material = "Polytetrafluorethylen (PTFE)"
 
 components = [
     # Pfannenboden aus Eisen
-    Rectangle(x_center=50, y_center=25, x_length=80, y_length=10, material="Iron"),
-    # Eiswürfel in der Pfanne
-    Square(x_center=50, y_center=40, side_length=20, material="Ice")
+    Rectangle(x_center=50, y_center=25, x_length=80, y_length=10, material="Eisen"),
+    # Eiswürfel in der Pfanne (Hinweis: 'Ice' fehlt in DB, 'Glas' als thermischer Platzhalter)
+    Square(x_center=50, y_center=40, side_length=20, material="Glas")
 ]
 
 heat_sources = [

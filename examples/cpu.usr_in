@@ -10,17 +10,17 @@ dy = 0.001
 
 t_span = (1, 3600)
 
-substrate_material = "PC (polycarbonate)"
+substrate_material = "Polycarbonat"
 
 components = [
     # Die CPU (Silizium)
-    Square(x_center=50, y_center=20, side_length=20, material="Silicon"),
+    Square(x_center=50, y_center=20, side_length=20, material="Silizium"),
     # Heatspreader (Kupfer-Basis)
-    Rectangle(x_center=50, y_center=35, x_length=40, y_length=10, material="Copper"),
+    Rectangle(x_center=50, y_center=35, x_length=40, y_length=10, material="Kupfer (rein)"),
     # Kühlrippen (Aluminium)
-    Rectangle(x_center=35, y_center=60, x_length=4, y_length=40, material="Aluminium"),
-    Rectangle(x_center=50, y_center=60, x_length=4, y_length=40, material="Aluminium"),
-    Rectangle(x_center=65, y_center=60, x_length=4, y_length=40, material="Aluminium")
+    Rectangle(x_center=35, y_center=60, x_length=4, y_length=40, material="Aluminium (99,5 %)"),
+    Rectangle(x_center=50, y_center=60, x_length=4, y_length=40, material="Aluminium (99,5 %)"),
+    Rectangle(x_center=65, y_center=60, x_length=4, y_length=40, material="Aluminium (99,5 %)")
 ]
 
 heat_sources = [
