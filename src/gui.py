@@ -140,17 +140,17 @@ def apply_native_dark_palette(app):
 
 class SimulationWorker(QThread):
     """Hintergrund-Thread für den HeatEquationSolver, damit die GUI nicht einfriert."""
-    finished = pyqtSignal(object)  
+    finished = pyqtSignal(object, object)  
     error = pyqtSignal(str)
 
-    def __init__(self, alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface):
+    def __init__(self, lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface):
         super().__init__()
-        self.args = (alpha, temp_rate_mat, u0, t_span, N, M, dx, dy, T_amb, cool_surface)
+        self.args = (lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
 
     def run(self):
         try:
-            sol_tensor = HeatEquationSolver(*self.args)
-            self.finished.emit(sol_tensor)
+            sol_time, sol_tensor = HeatEquationSolver(*self.args)
+            self.finished.emit(sol_time, sol_tensor)
         except Exception as e:
             self.error.emit(str(e))
 
@@ -178,30 +178,31 @@ class EditComponentDialog(QDialog):
         self.layout.addRow("Y Zentrum:", self.input_y)
 
         self.input_w, self.input_h, self.input_r = None, None, None
-        if shape == "Square":
+        if shape == "Quadrat":
             self.input_w = QLineEdit(str(obj.side_length))
             self.layout.addRow("Seitenlänge:", self.input_w)
-        elif shape == "Rectangle":
+        elif shape == "Rechteck":
             self.input_w = QLineEdit(str(obj.x_length))
             self.input_h = QLineEdit(str(obj.y_length))
             self.layout.addRow("Breite (X):", self.input_w)
             self.layout.addRow("Höhe (Y):", self.input_h)
-        elif shape == "Circle":
+        elif shape == "Kreis":
             self.input_r = QLineEdit(str(obj.radius))
             self.layout.addRow("Radius:", self.input_r)
 
         self.combo_mat, self.input_power, self.input_temp = None, None, None
-        if cat in [0, 1]:  
+        if cat == 0:  
             self.combo_mat = QComboBox()
             self.combo_mat.addItems(list(material_db.keys()))
-            self.combo_mat.setCurrentText(obj.material)
+            if obj.material:
+                self.combo_mat.setCurrentText(obj.material)
             self.layout.addRow("Material:", self.combo_mat)
         
-        if cat == 1:  
+        elif cat == 1:  
             self.input_power = QLineEdit(str(obj.power))
-            self.layout.addRow("Power (W/m²):", self.input_power)
+            self.layout.addRow("Leistung (W/m²):", self.input_power)
             
-        if cat == 2:  
+        elif cat == 2:  
             self.input_temp = QLineEdit(str(obj.temp))
             self.layout.addRow("Temperatur (°C):", self.input_temp)
 
@@ -257,9 +258,9 @@ class InteractiveView(QGraphicsView):
             brush = QBrush(QColor(150, 150, 150, 100))
             
             rect = QRectF(self.start_pos, self.start_pos)
-            if shape in ["Square", "Rectangle"]:
+            if shape in ["Quadrat", "Rechteck"]:
                 self.temp_item = self.scene().addRect(rect, pen, brush)
-            elif shape == "Circle":
+            elif shape == "Kreis":
                 self.temp_item = self.scene().addEllipse(rect, pen, brush)
 
     def mouseMoveEvent(self, event):
@@ -269,7 +270,7 @@ class InteractiveView(QGraphicsView):
             rect = QRectF(self.start_pos, current_pos).normalized()
             shape = self.main_app.combo_shape.currentText()
             
-            if shape in ["Square", "Circle"]:
+            if shape in ["Quadrat", "Kreis"]:
                 side = max(rect.width(), rect.height())
                 rect.setWidth(side)
                 rect.setHeight(side)
@@ -287,7 +288,7 @@ class InteractiveView(QGraphicsView):
 
             shape = self.main_app.combo_shape.currentText()
             
-            if shape in ["Square", "Circle"]:
+            if shape in ["Quadrat", "Kreis"]:
                 side = max(rect.width(), rect.height())
                 x_center = rect.left() + side / 2
                 y_center = rect.top() + side / 2
@@ -299,6 +300,23 @@ class InteractiveView(QGraphicsView):
 
             if w > 0 or h > 0 or r > 0:
                 self.main_app.add_component_from_mouse(int(x_center), int(y_center), int(w), int(h), r)
+                
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            click_pos = self.mapToScene(event.pos())
+            item = self.scene().itemAt(click_pos, self.transform())
+            
+            # Prüfen, ob ein gültiges Bauteil angeklickt wurde
+            if item and item.data(0) is not None:
+                obj = item.data(0)
+                # Zur Sicherheit noch einmal explizit auswählen
+                self.main_app.select_item_by_obj(obj)
+                # Das bereits bestehende Editier-Fenster aufrufen
+                self.main_app.edit_selected_item()
+            else:
+                super().mouseDoubleClickEvent(event)
+        else:
+            super().mouseDoubleClickEvent(event)
 
 
 class SimulationResultsWindow(QDialog):
@@ -316,7 +334,6 @@ class SimulationResultsWindow(QDialog):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         
-        # Konvertiert die Matplotlib-Figure in ein Qt-Widget
         canvas = FigureCanvas(fig)
         toolbar = NavigationToolbar(canvas, tab)
         
@@ -328,7 +345,7 @@ class SimulationResultsWindow(QDialog):
 class HeatFlowApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Heat Flow Simulation - Interactive Setup")
+        self.setWindowTitle("Wärmefluss-Simulation - Interaktives Setup")
         self.resize(1200, 750)
 
         self.dx = 0.001
@@ -339,7 +356,7 @@ class HeatFlowApp(QMainWindow):
         self.initial_heat_spots = []
 
         self.worker = None
-        self.current_alpha = None 
+        self.current_lambda = None 
 
         self._build_ui()
         self._update_preview()
@@ -363,15 +380,15 @@ class HeatFlowApp(QMainWindow):
         self.input_n.textChanged.connect(self._update_preview)
 
         self.input_tstart = QLineEdit("1")
-        self.input_tend = QLineEdit("60")
+        self.input_tend = QLineEdit("3600")
         self.input_tamb = QLineEdit("23")
         
         self.combo_substrate = QComboBox()
         self.combo_substrate.addItems(list(material_db.keys())) 
-        self.combo_substrate.setCurrentText("PC (polycarbonate) at 25 °C")
+        self.combo_substrate.setCurrentText("Epoxidharz (EP)")
 
         self.check_cool = QCheckBox("Oberflächenkühlung aktiv")
-        self.check_cool.setChecked(True)
+        self.check_cool.setChecked(False)
 
         form_settings.addRow("Breite (mm):", self.input_m)
         form_settings.addRow("Höhe (mm):", self.input_n)
@@ -391,29 +408,36 @@ class HeatFlowApp(QMainWindow):
         self.combo_type.addItems(["Passives Bauteil", "Perm. Wärmequelle (Heizt/Kühlt)", "Initiale Hitze (Start-Temp)"])
         
         self.combo_shape = QComboBox()
-        self.combo_shape.addItems(["Rectangle", "Square", "Circle"]) 
+        self.combo_shape.addItems(["Rechteck", "Quadrat", "Kreis"])
         
         self.combo_mat = QComboBox()
         self.combo_mat.addItems(list(material_db.keys()))
-        self.combo_mat.setCurrentText("Silicon")
+        self.combo_mat.setCurrentText("Kupfer (Handelsware)")
 
-        self.input_power = QLineEdit("1000000")
+        self.input_power = QLineEdit("1000")
         self.input_temp = QLineEdit("100")
 
         form_tools.addRow("Kategorie:", self.combo_type)
         form_tools.addRow("Form:", self.combo_shape)
-        form_tools.addRow("Material:", self.combo_mat)
-        form_tools.addRow("Power (W/m²):", self.input_power)
-        form_tools.addRow("Temperatur (°C):", self.input_temp)
+        
+        self.label_mat = QLabel("Material:")
+        self.label_power = QLabel("Leistung (W/m²):")
+        self.label_temp = QLabel("Temperatur (°C):")
+
+        form_tools.addRow(self.label_mat, self.combo_mat)
+        form_tools.addRow(self.label_power, self.input_power)
+        form_tools.addRow(self.label_temp, self.input_temp)
 
         group_tools.setLayout(form_tools)
         left_layout.addWidget(group_tools)
+
+        self.combo_type.currentIndexChanged.connect(self._update_tool_visibility)
 
         self.list_items = ClearableListWidget()
         self.list_items.itemSelectionChanged.connect(self._update_preview)
         self.list_items.itemDoubleClicked.connect(self.edit_selected_item)
         
-        left_layout.addWidget(QLabel("3. Platzierte Elemente (Doppelklick zum Editieren):"))
+        left_layout.addWidget(QLabel("3. Platzierte Elemente (Doppelklick zum Bearbeiten):"))
         left_layout.addWidget(self.list_items)
 
         btn_delete = QPushButton("Gewähltes Element löschen")
@@ -432,20 +456,17 @@ class HeatFlowApp(QMainWindow):
         # ==========================================
         right_layout = QVBoxLayout()
         
-        # Erstelle das Tab-Widget für die rechte Seite
         self.tabs = QTabWidget()
         right_layout.addWidget(self.tabs)
 
-        # Tab 1: Interaktive Vorschau erstellen
         self.tab_preview = QWidget()
         preview_layout = QVBoxLayout(self.tab_preview)
-        preview_layout.addWidget(QLabel("RECHTSKLICK + Ziehen = Neu erstellen | LINKSKLICK = Markieren | SCROLLEN = Zoom"))
+        preview_layout.addWidget(QLabel("RECHTSKLICK + Ziehen = Neu erstellen | LINKSKLICK = Markieren | DOPPEL-LINKSKLICK = Bearbeiten | SCROLLEN = Zoom"))
         
         self.scene = QGraphicsScene()
         self.view = InteractiveView(self.scene, self)
         preview_layout.addWidget(self.view)
         
-        # Vorschau als ersten Reiter hinzufügen
         self.tabs.addTab(self.tab_preview, "Setup Vorschau")
 
         main_layout.addLayout(right_layout, 3)
@@ -464,9 +485,32 @@ class HeatFlowApp(QMainWindow):
         self.progress_bar.setFixedSize(150, 15)
         self.progress_bar.hide()
         
-        # Beide Elemente als "PermanentWidget" hinzufügen, damit sie ganz rechts nebeneinander landen
         self.status_bar.addPermanentWidget(self.status_label)
         self.status_bar.addPermanentWidget(self.progress_bar)
+        
+        # Initialen Zustand der UI-Elemente setzen
+        self._update_tool_visibility()
+
+    def _update_tool_visibility(self):
+        """Blendet Eingabefelder basierend auf der gewählten Kategorie ein oder aus."""
+        cat = self.combo_type.currentIndex()
+        
+        # Kategorien: 0 = Passives Bauteil, 1 = Wärmequelle, 2 = Initiale Hitze
+        is_component = (cat == 0)
+        is_power = (cat == 1)
+        is_temp = (cat == 2)
+
+        # Material nur für Bauteile
+        self.label_mat.setVisible(is_component)
+        self.combo_mat.setVisible(is_component)
+
+        # Power nur für Wärmequellen
+        self.label_power.setVisible(is_power)
+        self.input_power.setVisible(is_power)
+
+        # Temperatur nur für initiale Hitze
+        self.label_temp.setVisible(is_temp)
+        self.input_temp.setVisible(is_temp)
 
     def add_component_from_mouse(self, x, y, w, h, r):
         cat = self.combo_type.currentIndex()
@@ -485,7 +529,6 @@ class HeatFlowApp(QMainWindow):
             QMessageBox.warning(self, "Fehler", f"Fehler bei der Objektzuweisung: {str(e)}")
 
     def edit_selected_item(self):
-        # selectedItems verwenden anstelle von currentItem
         selected_items = self.list_items.selectedItems()
         if not selected_items:
             return
@@ -493,8 +536,7 @@ class HeatFlowApp(QMainWindow):
         current_item = selected_items[0]
         obj = current_item.data(Qt.ItemDataRole.UserRole)
         cat = current_item.data(Qt.ItemDataRole.UserRole + 1)
-        shape = "Square" if isinstance(obj, Square) else "Rectangle" if isinstance(obj, Rectangle) else "Circle"
-        
+        shape = "Quadrat" if isinstance(obj, Square) else "Rechteck" if isinstance(obj, Rectangle) else "Kreis"        
         dialog = EditComponentDialog(obj, shape, cat, self)
         if dialog.exec():
             try:
@@ -521,16 +563,17 @@ class HeatFlowApp(QMainWindow):
                 QMessageBox.warning(self, "Fehler", f"Ungültige Eingabe: {str(e)}")
 
     def _build_kwargs(self, cat, mat, pwr, tmp):
+        # Exakt ein Parameter pro Typ, da component_shapes.py bei Kombinationen ValueError wirft
         if cat == 0: return {"material": mat}
-        elif cat == 1: return {"material": mat, "power": pwr}
+        elif cat == 1: return {"power": pwr}
         else: return {"temp": tmp}
 
     def _create_shape_instance(self, shape, x, y, w, h, r, kwargs):
         M = int(self.input_m.text())
         N = int(self.input_n.text())
-        if shape == "Square": return Square(x, y, w, **kwargs)
-        elif shape == "Rectangle": return Rectangle(x, y, w, h, **kwargs)
-        elif shape == "Circle": return Circle(N, M, x, y, r, **kwargs)
+        if shape == "Quadrat": return Square(x, y, w, **kwargs)
+        elif shape == "Rechteck": return Rectangle(x, y, w, h, **kwargs)
+        elif shape == "Kreis": return Circle(N, M, x, y, r, **kwargs)
 
     def _add_to_backend_list(self, cat, obj):
         if cat == 0: self.components.append(obj)
@@ -538,7 +581,7 @@ class HeatFlowApp(QMainWindow):
         else: self.initial_heat_spots.append(obj)
 
     def _generate_list_text(self, cat, shape, x, y, mat, kwargs):
-        if cat == 0: return f"Bauteil: {shape} an ({x},{y}) - {mat}"
+        if cat == 0: return f"Bauteil: {shape} an ({x},{y}) - {kwargs.get('material')}"
         elif cat == 1: return f"Heizung: {shape} an ({x},{y}) - {kwargs.get('power')} W/m²"
         else: return f"Start-Temp: {shape} an ({x},{y}) - {kwargs.get('temp')} °C"
 
@@ -549,7 +592,6 @@ class HeatFlowApp(QMainWindow):
         item.setData(Qt.ItemDataRole.UserRole + 1, cat)
         self.list_items.addItem(item)
         
-        # Sicherstellen, dass das neue Item ausgewählt ist
         self.list_items.clearSelection()
         item.setSelected(True)
 
@@ -629,7 +671,6 @@ class HeatFlowApp(QMainWindow):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         
-        # Konvertiert die Matplotlib-Figure in ein Qt-Widget
         canvas = FigureCanvas(fig)
         toolbar = NavigationToolbar(canvas, tab)
         
@@ -648,26 +689,27 @@ class HeatFlowApp(QMainWindow):
             cool_surface = self.check_cool.isChecked()
 
             self.status_label.setText("Erstelle Matrizen...")
-            alpha, temp_rate_mat, u0 = initialise_matrices(N, M, substrate, self.components, self.heat_sources, self.initial_heat_spots, T_amb)
+            
+            # Neue Aufrufsignatur inklusive dx, dy und erweiterte Rückgabewerte
+            lambda_mat, q_mat, u0, rho_mat, heat_cap_mat = initialise_matrices(
+                N, M, substrate, self.components, self.heat_sources, self.initial_heat_spots, T_amb, self.dx, self.dy
+            )
 
-            self.current_alpha = alpha
-            self.temp_rate_mat = temp_rate_mat
-            self.u0 = u0
+            self.current_lambda = lambda_mat
 
-            # --- ALTE ERGEBNISSE LÖSCHEN (alles außer der 3D/Zeichnen-Vorschau auf Index 0) ---
             while self.tabs.count() > 1:
                 self.tabs.removeTab(1)
 
-            # --- SETUP DASHBOARD SOFORT ZEIGEN ---
-            fig_setup = plot_setup_dashboard(alpha, temp_rate_mat, u0)
+            fig_setup = plot_setup_dashboard(lambda_mat, q_mat, u0)
             self.add_plot_tab(fig_setup, "Setup Übersicht")
-            self.tabs.setCurrentIndex(1)  # Wechselt direkt zum neuen Dashboard-Tab
+            self.tabs.setCurrentIndex(1)
 
             self.status_label.setText("Integration läuft (Dies kann dauern)...  ")
             self.progress_bar.show()
             self.btn_run.setEnabled(False)
 
-            self.worker = SimulationWorker(alpha, temp_rate_mat, u0, t_span, N, M, self.dx, self.dy, T_amb, cool_surface)
+            # Argumente für den aktualisierten Solver
+            self.worker = SimulationWorker(lambda_mat, q_mat, u0, t_span, N, M, self.dx, self.dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
             self.worker.finished.connect(self.on_simulation_finished)
             self.worker.error.connect(self.on_simulation_error)
             self.worker.start()
@@ -675,28 +717,25 @@ class HeatFlowApp(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Setup Fehler", f"Fehler vor der Simulation:\n{str(e)}")
 
-    def on_simulation_finished(self, sol_tensor):
+    def on_simulation_finished(self, sol_time, sol_tensor):
         self.status_label.setText("Bereit")
         self.progress_bar.hide()
         self.btn_run.setEnabled(True)
 
         temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
 
-        # 1. Restliche Figures über das Backend generieren
-        fig_initial = initial_state(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
-        fig_final = final_state(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
+        fig_initial = initial_state(sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
+        fig_final = final_state(sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
         
-        # WICHTIG: Referenzen an self binden, damit der Garbage Collector Slider/Animation nicht vorzeitig freigibt.
-        fig_interactive, self.heat_slider = interactive_heat_map(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
-        fig_ani, self.heat_ani = animate_heat(sol_tensor, temp_min, temp_max, alpha=self.current_alpha) 
+        fig_interactive, self.heat_slider = interactive_heat_map(sol_time, sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
+        fig_ani, self.heat_ani = animate_heat(sol_time, sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
 
-        # 2. Ergebnisse als neue Tabs anfügen
         self.add_plot_tab(fig_initial, "Startzustand")
         self.add_plot_tab(fig_final, "Endzustand")
-        self.add_plot_tab(fig_interactive, "Zeitschieberegler")
         self.add_plot_tab(fig_ani, "Animation")
+        self.add_plot_tab(fig_interactive, "Zeitschieberegler")
         
-        # Fokus optional auf den Startzustand setzen (Index 2), um Abschluss zu signalisieren
+        
         self.tabs.setCurrentIndex(2)
 
     def on_simulation_error(self, err_msg):
@@ -709,12 +748,10 @@ class HeatFlowApp(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    # Schriftart anpassen (wie im DataProcessor)
     font = QFont("Segoe UI", 10)
     font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
     QApplication.setFont(font)
     
-    # Design anwenden
     apply_native_dark_palette(app)
     app.setStyleSheet(APP_STYLE)
     

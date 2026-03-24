@@ -62,7 +62,7 @@ def initial_state(final_tensor, vmin, vmax, lambda_mat=None):
 def final_state(final_tensor, vmin, vmax, lambda_mat=None):
     fig, ax = plt.subplots()
     im = ax.imshow(final_tensor[-1, :, :], cmap="hot", vmin=vmin, vmax=vmax, origin="lower")
-    ax.set_title(f"Endzustand (Frame {len(final_tensor)-1})")
+    ax.set_title(f"Endzustand (Integrationsschritt {len(final_tensor)-1})")
     plt.colorbar(im, label='Temperatur (°C)')
     
     # Overlay to show different materials
