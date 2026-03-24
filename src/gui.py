@@ -801,11 +801,11 @@ class HeatFlowApp(QMainWindow):
                 self.tabs.removeTab(1)
                 widget_to_remove.deleteLater()
 
-            fig_setup = plot_setup_dashboard(lambda_mat, q_mat, u0)
+            fig_setup = plot_setup_dashboard(lambda_mat, q_mat, u0, rho_mat, heat_cap_mat, substrate, self.components)
             self.add_plot_tab(fig_setup, "Setup Übersicht")
             self.tabs.setCurrentIndex(1)
 
-            self.status_label.setText("Integration läuft (Dies kann dauern)...  ")
+            self.status_label.setText("Integration läuft...  ")
             self.progress_bar.show()
             self.btn_run.setEnabled(False)
 
@@ -826,7 +826,7 @@ class HeatFlowApp(QMainWindow):
         temp_min, temp_max = sol_tensor.min(), sol_tensor.max()
 
         fig_initial = initial_state(sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
-        fig_final = final_state(sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
+        fig_final = final_state(sol_time, sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
         
         fig_interactive, self.heat_slider = interactive_heat_map(sol_time, sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 
         fig_ani, self.heat_ani = animate_heat(sol_time, sol_tensor, temp_min, temp_max, lambda_mat=self.current_lambda) 

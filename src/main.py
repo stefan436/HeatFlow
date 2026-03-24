@@ -79,7 +79,7 @@ if __name__ == "__main__":
                                                                           dx, dy)
     
     print("Setup Dashboard")
-    plot_setup_dashboard(lambda_mat, q_mat, u0)
+    plot_setup_dashboard(lambda_mat, q_mat, u0, rho_mat, heat_cap_mat, substrate_material, components)
     show_until_enter()
     
     time_steps, sol_tensor = HeatEquationSolver(lambda_mat, q_mat, u0, t_span, N, M, dx, dy, T_amb, rho_mat, heat_cap_mat, cool_surface)
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     show_until_enter()
         
     print("Endzustand")
-    final_state(sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
+    final_state(time_steps, sol_tensor, temp_min, temp_max, lambda_mat=lambda_mat)
     show_until_enter()
 
     print("Animation")
