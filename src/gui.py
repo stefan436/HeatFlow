@@ -4,16 +4,17 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QFormLayout, QLineEdit, QPushButton, 
                              QComboBox, QLabel, QGroupBox, QListWidget, 
                              QMessageBox, QGraphicsView, QGraphicsScene, QCheckBox,
-                             QListWidgetItem, QDialog, QDialogButtonBox, QStatusBar, QProgressBar)
+                             QListWidgetItem, QDialog, QDialogButtonBox, QStatusBar, QProgressBar,
+                             QMenu)
 from PyQt6.QtCore import Qt, QRectF, QThread, pyqtSignal
-from PyQt6.QtGui import QBrush, QPen, QColor, QPalette, QFont
+from PyQt6.QtGui import QBrush, QPen, QColor, QPalette, QFont, QAction
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from PyQt6.QtWidgets import QTabWidget
 
 from core.solver import HeatEquationSolver
 from core.visualisation import plot_setup_dashboard, initial_state, final_state, interactive_heat_map, animate_heat
-from core.material import material_db
+from core.material import material_db, category_db
 from core.component_shapes import Rectangle, Square, Circle
 from core.initialise_shapes import initialise_matrices
 
@@ -28,9 +29,21 @@ QGroupBox {
     background-color: #252526;
     border: 1px solid #3e3e42;
     border-radius: 4px;
-    margin-top: 5px;
+    margin-top: 10px;
+    padding-top: 35px;
+    padding-bottom: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
     font-weight: bold;
     color: #cccccc;
+}
+
+QGroupBox::title {
+    subcontrol-origin: padding;
+    subcontrol-position: top left;
+    top: 5px;
+    left: 10px;
+    color: #ffffff;
 }
 
 QLineEdit {
@@ -63,6 +76,32 @@ QPushButton:hover {
 QPushButton:pressed {
     background-color: #4a6572;
     color: white;
+}
+QPushButton::menu-indicator {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    padding-right: 5px;
+}
+
+/* MENUS (Cascade) */
+QMenu {
+    background-color: #252526;
+    color: #e1e1e1;
+    border: 1px solid #3e3e42;
+}
+QMenu::item {
+    padding: 6px 25px 6px 20px;
+    background-color: transparent;
+}
+QMenu::item:selected {
+    background-color: #4a6572;
+    color: white;
+}
+QMenu::separator {
+    height: 1px;
+    background: #3e3e42;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 /* RIBBON TAB WIDGET */
@@ -114,6 +153,30 @@ QDialog {
 }
 QLabel {
     color: #e1e1e1;
+}
+
+/* DISABLED STATES (Ausgegraut) */
+QGroupBox:disabled,
+QGroupBox::title:disabled,
+QLabel:disabled {
+    color: #666666;
+}
+
+QLineEdit:disabled,
+QComboBox:disabled {
+    background-color: #252526;
+    border: 1px solid #333333;
+    color: #666666;
+}
+
+QPushButton:disabled {
+    background-color: #2a2a2c;
+    border: 1px solid #333333;
+    color: #666666;
+}
+
+QPushButton::menu-indicator:disabled {
+    image: none; /* Versteckt den Pfeil, wenn deaktiviert */
 }
 """
 
@@ -190,13 +253,26 @@ class EditComponentDialog(QDialog):
             self.input_r = QLineEdit(str(obj.radius))
             self.layout.addRow("Radius:", self.input_r)
 
-        self.combo_mat, self.input_power, self.input_temp = None, None, None
+        self.btn_mat, self.input_power, self.input_temp = None, None, None
         if cat == 0:  
-            self.combo_mat = QComboBox()
-            self.combo_mat.addItems(list(material_db.keys()))
+            self.btn_mat = QPushButton()
+            menu = QMenu(self)
+            
+            for cat_name in sorted(category_db.keys()):
+                cat_menu = menu.addMenu(cat_name)
+                for mat_name in category_db[cat_name]:
+                    action = QAction(mat_name, self)
+                    action.triggered.connect(lambda checked, m=mat_name: self.btn_mat.setText(m))
+                    cat_menu.addAction(action)
+                    
+            self.btn_mat.setMenu(menu)
+
             if obj.material:
-                self.combo_mat.setCurrentText(obj.material)
-            self.layout.addRow("Material:", self.combo_mat)
+                self.btn_mat.setText(obj.material)
+            else:
+                self.btn_mat.setText("Eisen")
+                
+            self.layout.addRow("Material:", self.btn_mat)
         
         elif cat == 1:  
             self.input_power = QLineEdit(str(obj.power))
@@ -217,7 +293,7 @@ class EditComponentDialog(QDialog):
         w = int(self.input_w.text()) if self.input_w else 0
         h = int(self.input_h.text()) if self.input_h else 0
         r = float(self.input_r.text()) if self.input_r else 0.0
-        mat = self.combo_mat.currentText() if self.combo_mat else None
+        mat = self.btn_mat.text() if self.btn_mat else None
         pwr = float(self.input_power.text()) if self.input_power else None
         tmp = float(self.input_temp.text()) if self.input_temp else None
         return x, y, w, h, r, mat, pwr, tmp
@@ -252,6 +328,10 @@ class InteractiveView(QGraphicsView):
             return
 
         if event.button() == Qt.MouseButton.RightButton:
+            # NEU: Zeichnen abbrechen, falls ein Bauteil ausgewählt ist
+            if self.main_app.list_items.selectedItems():
+                return
+            
             self.start_pos = self.mapToScene(event.pos())
             shape = self.main_app.combo_shape.currentText()
             pen = QPen(Qt.GlobalColor.black, 1, Qt.PenStyle.DashLine)
@@ -361,6 +441,20 @@ class HeatFlowApp(QMainWindow):
         self._build_ui()
         self._update_preview()
 
+    def _attach_material_menu(self, button, default_material):
+        """Erstellt ein Kaskaden-Menü aus category_db und bindet es an den Button."""
+        button.setText(default_material)
+        menu = QMenu(self)
+        
+        for cat_name in sorted(category_db.keys()):
+            cat_menu = menu.addMenu(cat_name) 
+            for mat_name in category_db[cat_name]:
+                action = QAction(mat_name, self)
+                action.triggered.connect(lambda checked, m=mat_name, b=button: b.setText(m))
+                cat_menu.addAction(action)
+                
+        button.setMenu(menu)
+
     def _build_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -383,9 +477,8 @@ class HeatFlowApp(QMainWindow):
         self.input_tend = QLineEdit("3600")
         self.input_tamb = QLineEdit("23")
         
-        self.combo_substrate = QComboBox()
-        self.combo_substrate.addItems(list(material_db.keys())) 
-        self.combo_substrate.setCurrentText("Epoxidharz (EP)")
+        self.btn_substrate = QPushButton()
+        self._attach_material_menu(self.btn_substrate, "Epoxidharz (EP)")
 
         self.check_cool = QCheckBox("Oberflächenkühlung aktiv")
         self.check_cool.setChecked(False)
@@ -395,13 +488,13 @@ class HeatFlowApp(QMainWindow):
         form_settings.addRow("Startzeit (s):", self.input_tstart)
         form_settings.addRow("Endzeit (s):", self.input_tend)
         form_settings.addRow("Umgebungstemperatur (°C):", self.input_tamb)
-        form_settings.addRow("Substrat:", self.combo_substrate)
+        form_settings.addRow("Substrat:", self.btn_substrate)
         form_settings.addRow("", self.check_cool)
         
         group_settings.setLayout(form_settings)
         left_layout.addWidget(group_settings)
 
-        group_tools = QGroupBox("2. Zeichen-Werkzeuge")
+        self.group_tools = QGroupBox("2. Zeichen-Werkzeuge")
         form_tools = QFormLayout()
 
         self.combo_type = QComboBox()
@@ -410,9 +503,8 @@ class HeatFlowApp(QMainWindow):
         self.combo_shape = QComboBox()
         self.combo_shape.addItems(["Rechteck", "Quadrat", "Kreis"])
         
-        self.combo_mat = QComboBox()
-        self.combo_mat.addItems(list(material_db.keys()))
-        self.combo_mat.setCurrentText("Kupfer (Handelsware)")
+        self.btn_mat = QPushButton()
+        self._attach_material_menu(self.btn_mat, "Kupfer (Handelsware)")
 
         self.input_power = QLineEdit("1000")
         self.input_temp = QLineEdit("100")
@@ -424,12 +516,12 @@ class HeatFlowApp(QMainWindow):
         self.label_power = QLabel("Leistung (W/m²):")
         self.label_temp = QLabel("Temperatur (°C):")
 
-        form_tools.addRow(self.label_mat, self.combo_mat)
+        form_tools.addRow(self.label_mat, self.btn_mat)
         form_tools.addRow(self.label_power, self.input_power)
         form_tools.addRow(self.label_temp, self.input_temp)
 
-        group_tools.setLayout(form_tools)
-        left_layout.addWidget(group_tools)
+        self.group_tools.setLayout(form_tools)
+        left_layout.addWidget(self.group_tools)
 
         self.combo_type.currentIndexChanged.connect(self._update_tool_visibility)
 
@@ -502,7 +594,7 @@ class HeatFlowApp(QMainWindow):
 
         # Material nur für Bauteile
         self.label_mat.setVisible(is_component)
-        self.combo_mat.setVisible(is_component)
+        self.btn_mat.setVisible(is_component)
 
         # Power nur für Wärmequellen
         self.label_power.setVisible(is_power)
@@ -515,7 +607,7 @@ class HeatFlowApp(QMainWindow):
     def add_component_from_mouse(self, x, y, w, h, r):
         cat = self.combo_type.currentIndex()
         shape = self.combo_shape.currentText()
-        mat = self.combo_mat.currentText()
+        mat = self.btn_mat.text()
         
         try:
             kwargs = self._build_kwargs(cat, mat, float(self.input_power.text()), float(self.input_temp.text()))
@@ -636,6 +728,9 @@ class HeatFlowApp(QMainWindow):
         selected_items = self.list_items.selectedItems()
         if selected_items:
             selected_obj = selected_items[0].data(Qt.ItemDataRole.UserRole)
+            self.group_tools.setEnabled(False)
+        else:
+            self.group_tools.setEnabled(True)
 
         def draw_objects(obj_list, color):
             for obj in obj_list:
@@ -685,7 +780,7 @@ class HeatFlowApp(QMainWindow):
             N = int(self.input_n.text())
             t_span = (float(self.input_tstart.text()), float(self.input_tend.text()))
             T_amb = float(self.input_tamb.text())
-            substrate = self.combo_substrate.currentText()
+            substrate = self.btn_substrate.text()
             cool_surface = self.check_cool.isChecked()
 
             self.status_label.setText("Erstelle Matrizen...")
@@ -697,8 +792,14 @@ class HeatFlowApp(QMainWindow):
 
             self.current_lambda = lambda_mat
 
+            # 1. Matplotlib-Speicher leeren: Schließt alle im Hintergrund gehaltenen plt-Figuren
+            plt.close('all')
+
+            # 2. GUI-Speicher leeren: Tabs entfernen UND die Widgets sauber zerstören
             while self.tabs.count() > 1:
+                widget_to_remove = self.tabs.widget(1)
                 self.tabs.removeTab(1)
+                widget_to_remove.deleteLater()
 
             fig_setup = plot_setup_dashboard(lambda_mat, q_mat, u0)
             self.add_plot_tab(fig_setup, "Setup Übersicht")
